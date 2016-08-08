@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}大招的任务便利贴 - 修改账户信息{% endblock %}
+{% block body_attribs %}
+background="http://o6gcipdzi.bkt.clouddn.com/wow.jpg" style="background-position: center;background-repeat: no-repeat;background-attachment: fixed;"
+{% endblock %}
+{% block page_content %}
+<div class="container" style="margin-top:70px">
+<div class="page-header">
+    <h1 style="color:gainsboro">修改账户信息</h1>
+</div>
+<div class="col-md-4">
+<p><a href="{{ url_for('auth.change_header') }}"> 修改头像</a></p>
+
+   <div style="color:gainsboro">
+{{ wtf.quick_form(form) }}
+</div>
+<p></p>
+<p><a href="{{ url_for('auth.change_passwd') }}">修改密码</a></p>
+</div>
+</div>
+</div>
+{% endblock %}

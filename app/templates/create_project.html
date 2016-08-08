@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}项目进度管理系统-创建新的Project{% endblock %}
+{% block body_attribs %}
+{% endblock %}
+{% block page_content %}
+    <!-- start header -->
+
+<div class="container" >
+<div class="row" style="margin-top:70px;margin-bottom:20px;">
+    <div class="col-md-7">
+    <h3> 创建新项目 </h3>
+    <form id="createProject" name="createProject"  method="POST" role="form" action={{ url_for('main.create_project') }}>
+          <div class="form-group">
+               <label for="inputName">项目名称</label>
+              <input type="text" class="form-control" id="name" name="name">
+          </div>
+          <div class="form-group">
+               <label for="inputContent">项目内容</label>
+              <input type="text" class="form-control" id="content" name="content">
+          </div>
+          <div class="form-group" id="1">
+               <label for="inputStep1">步骤1</label>
+              <input type="text" class="form-control" id="step1" name="step1">
+          </div>
+          <div style="margin-top:20px;margin-bottom:20px;">
+              <a class="btn btn-info"   id="add">+</a>
+          </div>
+      <button type="submit" class="btn btn-primary" >确认</button>
+   </form>
+    </div>
+</div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+    <script>
+$(document).ready(function(){
+    $("#add").click(function(){
+        var n = $("#createProject").find("div").length - 2 ;
+        var trHTML = " <div class='form-group' style='margin-top:15px;margin-bottom:15px;'><label for='inputStep1'>步骤"+n+"</label> <input type='text' class='form-control' id='step"+
+                n + "' name='step"+ n + "'> </div>";
+        $("#1").append(trHTML);
+
+    });
+});</script>
+{% endblock %}
