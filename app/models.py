@@ -31,6 +31,8 @@ class Project(db.Model):
     content = db.Column(db.Text)
     status = db.Column(db.Boolean, default=0)
     create_at = db.Column(db.DateTime, default=datetime.utcnow())
+    expected_finish_at = db.Column(db.DateTime)
+    finish_at = db.Column(db.DateTime, nullable=True)
     create_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     steps = db.relationship('Step', backref='project', lazy='dynamic')
 
@@ -51,6 +53,11 @@ class User(UserMixin, db.Model):
                                secondary=registrations,
                                backref=db.backref('users', lazy='dynamic'),
                                lazy='dynamic')
+    create_projects = db.relationship('Project',
+                                      foreign_keys=[Project.create_id],
+                                      backref=db.backref('creator', lazy='joined'),
+                                      lazy='dynamic',
+                                      cascade='all, delete-orphan')
 
     @property
     def password(self):
@@ -79,12 +86,14 @@ class User(UserMixin, db.Model):
     def load_user(user_id):
         return User.query.get(user_id)
 
+
 class Step(db.Model):
     __tablename__ = 'steps'
     id = db.Column(db.String(50), primary_key=True, default=next_id, unique=True)
     content = db.Column(db.Text)
     status = db.Column(db.Boolean, default=0)
     create_at = db.Column(db.DateTime, default=datetime.utcnow)
+    finish_at = db.Column(db.DateTime, nullable=True)
     project_id = db.Column(db.String(50), db.ForeignKey('projects.id'))
 
     def __repr__(self):

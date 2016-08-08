@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding=utf-8
 import os
 from app import create_app, db
 from app.models import Step, User ,Project
@@ -8,6 +9,33 @@ from flask.ext.migrate import Migrate, MigrateCommand
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
+
+
+@app.template_filter('date_output')
+def datetime_filter(dt):
+    '''
+    :param dt: datetime
+    :return: 年月日输出
+    '''
+    return dt.strftime('%Y-%m-%d')
+
+
+@app.template_filter('days_output')
+def days_filter(timedelte):
+    '''
+    :param timedelte: 时间差 类型：datetime.timedelte
+    :return: 按需输出
+    '''
+    return timedelte.days
+
+
+@app.template_filter('negate')
+def negate_filter(d):
+    '''
+    :param d: int
+    :return: -d
+    '''
+    return -d
 
 
 def make_shell_context():

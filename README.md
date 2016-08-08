@@ -92,6 +92,11 @@
  <td style="text-align:right;">完成时间</td>
 </tr>
 <tr>
+ <td>excepted_finish_time</td>
+ <td style="text-align:center;">DateTime</td>
+ <td style="text-align:right;">完成时间</td>
+</tr>
+<tr>
  <td>create_id</td>
  <td style="text-align:center;">Interger</td>
  <td style="text-align:right;">创建人 指向USER</td>
@@ -141,6 +146,7 @@
  <td style="text-align:center;">Interger</td>
  <td style="text-align:right;">所属项目 指向PROJECT</td>
 </tr>
-</tbody></table><div class="md-section-divider"></div><h3 id="暂未解决的问题" data-anchor-id="o51a">暂未解决的问题</h3><p data-anchor-id="kp3j">如何与git服务器交互，同步git上的commit数据</p></div>
+</tbody></table><div class="md-section-divider"></div><h3 id="暂未解决的问题" data-anchor-id="o51a">暂未解决的问题</h3>
+<p data-anchor-id="kp3j">邀请成员加入功能</p><p data-anchor-id="kp3j">如何与git服务器交互，同步git上的commit数据</p></div>
 </body>
 </html>
