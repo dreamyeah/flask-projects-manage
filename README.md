@@ -1,9 +1,66 @@
-V0.1 这是第一个线上发布的web tasks+微社交的webapp  --2016.5.11
+# 基于Flask的项目管理网站
 
-增加了注册时邮件确认的功能   2016/5/12
 
-增加了工作圈circle的概念，添加了创建、加入、管理等功能
-目前加入和通过圈子的申请都是通过对创建人的邮箱发送邮件确认，希望以后能够开发出消息系统
-每个工作圈子都有自己的任务和碎碎念，只有加入了圈子里面的人才能看到
+----------
 
---2016/5/16
+
+## 注意
+   还未完工.....
+
+
+
+
+
+## 介绍
+   此项目利用了python的微框架Flask，目前使用关系型数据库SQLite出储存项目信息。
+####基本功能：
+* 用户登录注册
+* 项目新建、提交、进度
+
+
+##模型
+* USER
+| 列名          | 类型          | 说明     |
+| ------------- |:-------------:| -----:   |
+| id            | Interger      |  工号    |
+| name          | String(40)    | 用户名   |
+| passwd        | String(128)   |  密码    |
+| admin         | Boolean       | 管理权限 |
+| image_url     | String(500)   |   头像   |
+| create_at     | DateTime      | 创建时间 |
+| projects      | relationship  | 指向PROJECT |
+
+* PROJECT
+| 列名          | 类型          | 说明         |
+| ------------- |:-------------:| ------------:|
+| id            | String(50)      |  项目ID    |
+| name          | String(40)    | 项目名       |
+| content       | Text          |  项目简介    |
+| status        | Boolean       | 状态         |
+| create_at     | String(500)   |   创建时间   |
+| finish_at     | DateTime      | 完成时间     |
+| create_id     | Interger      | 创建人 指向USER |
+| steps         | relationship  | 步骤 指向STEP |
+
+
+* STEP
+| 列名          | 类型          | 说明       |
+| ------------- |:-------------:| -----:     |
+| id            | String(50)    |  步骤ID    |
+| content       | Text          |  步骤简介  |
+| status        | Boolean       | 状态       |
+| create_at     | String(500)   | 创建时间   |
+| finish_at     | DateTime      | 完成时间   |
+| project_id    | Interger      | 所属项目 指向PROJECT |
+
+
+
+
+
+### 暂未解决的问题
+   如何与git服务器交互，同步git上的commit数据
+
+
+
+
+
