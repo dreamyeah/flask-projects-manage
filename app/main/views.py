@@ -24,34 +24,38 @@ def index():
         steps_length = 0
         return render_template('project.html', project=None, projects=p,
                                progress=progress, finish_steps_length=finish_steps_length,
-                               steps_length=steps_length, remained_days=None)
+                               steps_length=steps_length, remained_days=None,  other_users=None)
     else:
         finish_steps_length = float(Step.query.filter_by(project_id=p[0].id, status=1).count())
     # finish_steps_length = float(len(list(finish_steps)))
         steps_length = float(len(list(p[0].steps)))
         progress = finish_steps_length / steps_length * 100
         remained_days = p[0].expected_finish_at - datetime.now()
-
+        other_users = User.query.filter(id not in [str(u.id) for u in p[0].users]).all()
         return render_template('project.html', project=p[0], projects=p,
                                progress=progress, finish_steps_length=finish_steps_length,
-                               steps_length=steps_length, remained_days=remained_days)
+                               steps_length=steps_length, remained_days=remained_days,
+                               other_users=other_users)
 
 
-@main.route('/project/<id>', methods=['GET'])
+@main.route('/project/<project_id>', methods=['GET'])
 @login_required
-def project(id):
+def project(project_id):
     '''
     项目显示细节
     '''
     # print 'projects', current_user.projects
-    p = Project.query.get_or_404(id)
+    p = Project.query.get_or_404(project_id)
     finish_steps_length = Step.query.filter_by(project_id=p.id, status=1).count()
     steps_length = float(len(list(p.steps)))
     progress = finish_steps_length / steps_length * 100
     remained_days = p.expected_finish_at - datetime.now()
+    other_users = db.session.query(User).filter(User.id.notin_([u.id for u in p.users])).all()
+    # print [u.id for u in p.users], [u.id for u in other_users]
     return render_template('project.html', project=p, projects=current_user.projects.all(),
                            progress=progress, finish_steps_length=finish_steps_length,
-                           steps_length=steps_length, remained_days=remained_days)
+                           steps_length=steps_length, remained_days=remained_days,
+                           other_users=other_users)
 
 
 @main.route('/step/finish/<id>', methods=['GET'])
@@ -74,7 +78,6 @@ def finish_step(id):
         p.status = True
         p.finish_at = datetime.now()
         db.session.add(p)
-        db.session.commit()
     return id
 
 
@@ -100,8 +103,22 @@ def create_project():
         for i in steps:
             s = Step(content=i, project=p)
             db.session.add(s)
-        db.session.commit()
         flash(u'创建成功')
         return redirect(url_for('main.index'))
     return render_template('test.html')
 
+
+@main.route('/project/<project_id>/addUser', methods=['POST'])
+def add_user(project_id):
+    # print project_id, request.form
+    users_id = [r for r in request.form]
+    # u = User.query.filter(id not in users_id).all()
+    # print u
+    p = Project.query.get_or_404(project_id)
+    users = db.session.query(User).filter(User.id.in_(users_id)).all()
+    # print users
+    for u in users:
+        p.users.append(u)
+    db.session.add(p)
+    flash(u'添加成功')
+    return redirect(url_for('main.project', project_id=project_id))

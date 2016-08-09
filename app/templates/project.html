@@ -7,10 +7,14 @@
 {% endblock %}
 {% block head %}
 {{ super() }}
+<style type="text/css">
+.bignumber {font-size:40px;}
+</style>
 <script type="text/javascript">
       var xmlhttp;
       var finish_steps_length = {{ finish_steps_length }};
       var steps_length = {{ steps_length }};
+      //以下是ajax 完成步骤函数
       if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
         xmlhttp = new XMLHttpRequest();
       } else { // code for IE6, IE5
@@ -50,8 +54,10 @@
 {% block page_content %}
 <div class="container-fluid">
   <div class="row">
+
+    <!-- 第一个网格 显示user项目信息 -->
     <div class="col-md-2 col-md-offset-1">
-            <a class="btn btn-primary" role="button"data-toggle="modal"  data-target="#myModal"
+            <a class="btn btn-primary" role="button"data-toggle="modal"  data-target="#create_project"
        style="margin-top:10px;margin-bottom:10px;">+ 新建一个项目</a>
     {% if projects == [] %}
         <h4> 没有项目 </h4>
@@ -60,20 +66,23 @@
         <div class="list-group">
             {% for p in projects %}
                  {% if p == project %}
-                 <a href="{{ url_for('.project', id=p.id) }}" class="list-group-item active">{{ p.name }}</a>
+                 <a href="{{ url_for('.project', project_id=p.id) }}" class="list-group-item active">{{ p.name }}</a>
                  {% else %}
                     {% if p.status %}
-                    <a href="{{ url_for('.project', id=p.id) }}" class="list-group-item list-group-item-success">
+                    <a href="{{ url_for('.project', project_id=p.id) }}" class="list-group-item list-group-item-success">
                         {{ p.name }}
                     </a>
                     {% else %}
-                    <a href="{{ url_for('.project', id=p.id) }}" class="list-group-item ">{{ p.name }}</a>
+                    <a href="{{ url_for('.project', project_id=p.id) }}" class="list-group-item ">{{ p.name }}</a>
                     {% endif %}
                  {% endif %}
             {%  endfor %}
         </div>
     {% endif %}
     </div>
+    <!-- /.第一个网格结束 -->
+
+    <!-- 中间网格 显示当前项目信息 -->
     <div class="col-md-7" >
         {% if project != None %}
             {% if project.status %}
@@ -98,14 +107,14 @@
                   项目时间：{{ project.create_at | date_output }} 至 {{ project.expected_finish_at | date_output }}
                   </h4>
                   <h4 id="project_status" class="text-right">
-                  <span class="glyphicon glyphicon-time" aria-hidden="true"> </span> 剩下 <b>{{ remained_days | days_output }}</b>天
+                  <span class="glyphicon glyphicon-time" aria-hidden="true"> </span> 剩下 <span class="bignumber">{{ remained_days | days_output }}</span>天
                   </h4>
               {% else %}
                   <h4 id="project_time" class="text-right">
                   项目时间：{{ project.create_at | date_output }} 至 {{ project.expected_finish_at | date_output }}
                   </h4>
                   <h4 id="project_status" class="text-right">
-                  <span class="glyphicon glyphicon-time" aria-hidden="true"> </span> 项目超期 <b>{{ remained_days | days_output | negate }}</b> 天
+                  <span class="glyphicon glyphicon-time" aria-hidden="true"> </span> 项目超期 <span class="bignumber">{{ remained_days | days_output | negate }}</span> 天
                   </h4>
               {% endif %}
       </div>
@@ -148,24 +157,33 @@
 
 {% endif %}
 </div>
+<!-- /.中间网格结束-->
+
+    <!-- 第三个网格 显示项目的成员 -->
+    {% if projects != [] %}
     <div class="col-md-1">
                 <h3>项目成员</h3>
         <ul class="list-group">
         <li class="list-group-item active "> 创建人：{{ project.creator.name }}</li>
         {% for u in project.users %}
-            <li class="list-group-item">{{ u.name }}</li>
+            <li class="list-group-item text-center">{{ u.name }}</li>
         {% endfor %}
-        <a href="" class="list-group-item ">
+        <a data-toggle="modal"  data-target="#addNewUsers" class="list-group-item text-center">
         +
         </a>
 
        </ul>
     </div>
+        <!-- /.第三个网格 结束 -->
+    {% endif %}
       </div>
+        <!-- /.row 结束 -->
+</div>
+<!-- /.contain 结束 -->
 
-  </div>
-<!-- 模态框（Modal） -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+
+<!-- 模态框（Modal）创建项目用 -->
+<div class="modal fade" id="create_project" tabindex="-1" role="dialog"
    aria-labelledby="myModalLabel" aria-hidden="true">
    <div class="modal-dialog">
       <div class="modal-content">
@@ -179,7 +197,6 @@
             </h3>
          </div>
          <div class="modal-body">
-
                     <form id="createProject" name="createProject"  method="POST" role="form" action=/create_project>
                     <div class="form-group">
                         <label for="inputName">项目名称</label>
@@ -187,7 +204,7 @@
                     </div>
                     <div class="form-group">
                          <label for="inputContent">项目内容</label>
-                         <input type="text" class="form-control" id="content" name="content">
+                         <textarea  type="text" class="form-control"  rows="3" id="content" name="content"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="date">项目起始时间</label>
@@ -202,17 +219,54 @@
                         <input type="text" class="form-control" id="step1" name="step1">
                     </div>
                     <div style="margin-top:20px;margin-bottom:20px;">
-                        <a class="btn btn-info"   id="add" >+</a>
+                        <a class="btn btn-info"   id="add"  >+</a>
                     </div>
                     <button type="submit" class="btn btn-primary" >确认</button>
                     </form>
                 </div>
-
-
       </div><!-- /.modal-content -->
 </div><!-- /.modal -->
 </div>
+   <!-- /.创建项目框结束 -->
+
+
+<!-- 模态框（Modal）添加成员用 -->
+<div class="modal fade" id="addNewUsers" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close"
+               data-dismiss="modal" aria-hidden="true">
+                  &times;
+            </button>
+            <h3 class="modal-title" id="myModalLabel">
+               添加成员
+            </h3>
+         </div>
+         <div class="modal-body">
+              <form id="addUser" name="createProject"  method="POST" role="form" action="/project/{{ project.id }}/addUser">
+                  {% for u in other_users %}
+                  <div class="form-group">
+                      <label>
+                          <h4><input type="checkbox" id="choice" name="{{ u.id }}"> {{ u.name }}</h4>
+                      </label>
+
+                  </div>
+                   {% endfor %}
+                  <button type="submit" class="btn btn-primary"  >确认添加</button>
+
+              </form>
+
+         </div>
+      </div><!-- /.modal-content -->
+</div><!-- /.modal -->
+</div>
+   <!-- /.添加成员项目框结束 -->
+
+
 <script>
+//创建project模拟框的两个时间选择器触发函数
 $( "#datepicker1" ).datepicker({
 	inline: true
 });
@@ -220,7 +274,8 @@ $( "#datepicker2" ).datepicker({
 	inline: true
 });
 </script>
-    <script>
+<script>
+    //下面是模拟框提交创建project的函数
 $(document).ready(function(){
     $("#add").click(function(){
         var n = $("#createProject").find("div").length - 4 ;
@@ -230,5 +285,6 @@ $(document).ready(function(){
         $("#1").append(trHTML);
 
     });
-});</script>
+});
+</script>
 {% endblock %}
