@@ -66,7 +66,7 @@
         <div class="list-group">
             {% for p in projects %}
                  {% if p == project %}
-                 <a href="{{ url_for('.project', project_id=p.id) }}" class="list-group-item active">{{ p.name }}</a>
+                 <a href="{{ url_for('.project', project_id=p.id) }}" class="list-group-item active">{{ p.name }}    <span class="badge">id:{{ p.id }}</span></a>
                  {% else %}
                     {% if p.status %}
                     <a href="{{ url_for('.project', project_id=p.id) }}" class="list-group-item list-group-item-success">
@@ -154,7 +154,31 @@
      {% endfor %}
       </table>
     </div>
-
+    <div>
+    <h4> 时间线 </h4>
+    <table class="table table-hover">
+    <thead>
+      <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for c in commits[::-1] %}
+          <tr>
+            <td width="15%" style="font-size: 16px;">{{ moment(c.create_at).fromNow(refresh=True) }} </td>
+            <td width="15%" style="font-size: 16px;">
+               <span style="color: #007fff">[{{ c.branch }}] </span>
+            </td>
+            <td width="40%" style="font-size: 16px;">  <span style="color: #76231f">[{{ c.ref }}]</span> </td>
+            <td width="30%" style="font-size: 16px;">  by {{ c.cname }}<{{ c.cemail }}> </td>
+          </tr>
+    {% endfor %}
+        </tbody>
+         </table>
+    </div>
 {% endif %}
 </div>
 <!-- /.中间网格结束-->

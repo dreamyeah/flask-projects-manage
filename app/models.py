@@ -26,7 +26,7 @@ registrations = db.Table('registrations',
 class Project(db.Model):
     __tablename__ = 'projects'
 
-    id = db.Column(db.String(50), primary_key=True, unique=True, default=next_id)
+    id = db.Column(db.Integer, primary_key=True, unique=True)
     name = db.Column(db.String(50))
     content = db.Column(db.Text)
     status = db.Column(db.Boolean, default=0)
@@ -35,9 +35,10 @@ class Project(db.Model):
     finish_at = db.Column(db.DateTime, nullable=True)
     create_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     steps = db.relationship('Step', backref='project', lazy='dynamic')
+    commits = db.relationship('Commit', backref='project', lazy='dynamic')
 
     def __repr__(self):
-        return '<Name {}>'.format(self.name)
+        return '<Name {}>'.format(self.id)
 
 
 class User(UserMixin, db.Model):
@@ -98,3 +99,16 @@ class Step(db.Model):
 
     def __repr__(self):
         return '<Step {}>'.format(self.content)
+
+
+class Commit(db.Model):
+    __tablename__ = 'commits'
+    id = db.Column(db.String(50), primary_key=True, default=next_id, unique=True)
+    branch = db.Column(db.String(80))
+    ref = db.Column(db.String(40))
+    cname = db.Column(db.String(50))
+    cemail = db.Column(db.String(50))
+    message = db.Column(db.String(100))
+    create_at = db.Column(db.DateTime, default=datetime.utcnow)
+    project_id = db.Column(db.String(50), db.ForeignKey('projects.id'))
+

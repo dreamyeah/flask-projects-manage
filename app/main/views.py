@@ -2,7 +2,7 @@
 from flask import render_template, session, redirect, url_for, current_app, request, flash
 from flask.ext.login import login_required, current_user
 from .. import db
-from ..models import Step, Project, User
+from ..models import Step, Project, User, Commit
 from . import main
 from .forms import ProjectForm
 import json
@@ -24,18 +24,18 @@ def index():
         steps_length = 0
         return render_template('project.html', project=None, projects=p,
                                progress=progress, finish_steps_length=finish_steps_length,
-                               steps_length=steps_length, remained_days=None,  other_users=None)
+                               steps_length=steps_length, remained_days=None,  other_users=[])
     else:
         finish_steps_length = float(Step.query.filter_by(project_id=p[0].id, status=1).count())
     # finish_steps_length = float(len(list(finish_steps)))
         steps_length = float(len(list(p[0].steps)))
         progress = finish_steps_length / steps_length * 100
         remained_days = p[0].expected_finish_at - datetime.now()
-        other_users = User.query.filter(id not in [str(u.id) for u in p[0].users]).all()
+        other_users = db.session.query(User).filter(User.id.notin_([u.id for u in p[0].users])).all()
         return render_template('project.html', project=p[0], projects=p,
                                progress=progress, finish_steps_length=finish_steps_length,
                                steps_length=steps_length, remained_days=remained_days,
-                               other_users=other_users)
+                               other_users=other_users, commits=p[0].commits)
 
 
 @main.route('/project/<project_id>', methods=['GET'])
@@ -55,7 +55,7 @@ def project(project_id):
     return render_template('project.html', project=p, projects=current_user.projects.all(),
                            progress=progress, finish_steps_length=finish_steps_length,
                            steps_length=steps_length, remained_days=remained_days,
-                           other_users=other_users)
+                           other_users=other_users, commits=p.commits)
 
 
 @main.route('/step/finish/<id>', methods=['GET'])
@@ -122,3 +122,13 @@ def add_user(project_id):
     db.session.add(p)
     flash(u'添加成功')
     return redirect(url_for('main.project', project_id=project_id))
+
+
+@main.route('/project/git/commit/<p_id>', methods=['POST'])
+def git_commit(p_id):
+    p = Project.query.get_or_404(p_id)
+    data = json.loads(request.data)
+    c = Commit(branch=data['branch'], ref=data['hashref'], cname=data['name'],
+               cemail=data['email'], message=data['message'], project=p)
+    db.session.add(c)
+    return 'ok', 200
