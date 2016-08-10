@@ -146,7 +146,11 @@
  <td style="text-align:center;">Interger</td>
  <td style="text-align:right;">所属项目 指向PROJECT</td>
 </tr>
-</tbody></table><div class="md-section-divider"></div><h3 id="暂未解决的问题" data-anchor-id="o51a">暂未解决的问题</h3>
-<p data-anchor-id="kp3j">邀请成员加入功能</p><p data-anchor-id="kp3j">如何与git服务器交互，同步git上的commit数据</p></div>
+</tbody></table><div class="md-section-divider"></div><h3 id="暂未解决的问题" data-anchor-id="o51a">暂未解决的问题☑</h3>
+<p data-anchor-id="kp3j">邀请成员加入功能--已经解决 ☑2016/8/10</p><p data-anchor-id="kp3j">如何与git服务器交互，同步git上的commit数据--已解决2016/8/10☑</p>
+<p data-anchor-id="kp3j">历史项目</p>
+<p data-anchor-id="kp3j">完成备注</p>
+<p data-anchor-id="kp3j">管理part</p></div>
+
 </body>
 </html>
