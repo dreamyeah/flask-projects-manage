@@ -78,6 +78,7 @@ def finish_step(id):
         p.status = True
         p.finish_at = datetime.now()
         db.session.add(p)
+        return '#' + id
     return id
 
 
@@ -97,6 +98,7 @@ def create_project():
         p = Project(name=project_name, content=project_content, create_id=current_user.id,
                     create_at=create_at, expected_finish_at=finish_time)
         db.session.add(p)
+        db.session.commit()
         user =current_user._get_current_object()
         user.projects.append(p)
         db.session.add(user)
@@ -104,7 +106,8 @@ def create_project():
             s = Step(content=i, project=p)
             db.session.add(s)
         flash(u'创建成功')
-        return redirect(url_for('main.index'))
+        print p.id
+        return redirect(url_for('main.project', project_id=p.id))
     return render_template('test.html')
 
 
@@ -127,7 +130,7 @@ def add_user(project_id):
 @main.route('/project/git/commit/<p_id>', methods=['POST'])
 def git_commit(p_id):
     p = Project.query.get_or_404(p_id)
-    data = json.loads(request.data)
+    data = json.loads(unicode(request.data))
     c = Commit(branch=data['branch'], ref=data['hashref'], cname=data['name'],
                cemail=data['email'], message=data['message'], project=p)
     db.session.add(c)
