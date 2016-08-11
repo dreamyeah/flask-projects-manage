@@ -90,19 +90,22 @@ class User(UserMixin, db.Model):
 
 class Step(db.Model):
     __tablename__ = 'steps'
+
     id = db.Column(db.String(50), primary_key=True, default=next_id, unique=True)
     content = db.Column(db.Text)
     status = db.Column(db.Boolean, default=0)
     create_at = db.Column(db.DateTime, default=datetime.utcnow)
     finish_at = db.Column(db.DateTime, nullable=True)
     project_id = db.Column(db.String(50), db.ForeignKey('projects.id'))
+    finish_remark = db.Column(db.Text, nullable=True)
 
     def __repr__(self):
-        return '<Step {}>'.format(self.content)
+        return '<Step {}>'.format(self.id)
 
 
 class Commit(db.Model):
     __tablename__ = 'commits'
+
     id = db.Column(db.String(50), primary_key=True, default=next_id, unique=True)
     branch = db.Column(db.String(80))
     ref = db.Column(db.String(40))
@@ -112,3 +115,5 @@ class Commit(db.Model):
     create_at = db.Column(db.DateTime, default=datetime.utcnow)
     project_id = db.Column(db.String(50), db.ForeignKey('projects.id'))
 
+    def __repr__(self):
+        return '<Step {}>'.format(self.id)
