@@ -18,7 +18,7 @@ def next_id():
 
 
 registrations = db.Table('registrations',
-                         db.Column('user_id', db.String(50), db.ForeignKey('users.id')),
+                         db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
                          db.Column('project_id', db.Integer, db.ForeignKey('projects.id'))
                          )
 
@@ -30,6 +30,7 @@ class Project(db.Model):
     name = db.Column(db.String(50))
     content = db.Column(db.Text)
     status = db.Column(db.Boolean, default=0)
+    start_time = db.Column(db.DateTime)
     create_at = db.Column(db.DateTime, default=datetime.utcnow())
     expected_finish_at = db.Column(db.DateTime)
     finish_at = db.Column(db.DateTime, nullable=True)
@@ -96,7 +97,7 @@ class Step(db.Model):
     status = db.Column(db.Boolean, default=0)
     create_at = db.Column(db.DateTime, default=datetime.utcnow)
     finish_at = db.Column(db.DateTime, nullable=True)
-    project_id = db.Column(db.String(50), db.ForeignKey('projects.id'))
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     finish_remark = db.Column(db.Text, nullable=True)
 
     def __repr__(self):
@@ -113,7 +114,7 @@ class Commit(db.Model):
     cemail = db.Column(db.String(50))
     message = db.Column(db.String(100))
     create_at = db.Column(db.DateTime, default=datetime.utcnow)
-    project_id = db.Column(db.String(50), db.ForeignKey('projects.id'))
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
 
     def __repr__(self):
         return '<Step {}>'.format(self.id)

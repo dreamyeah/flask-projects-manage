@@ -91,14 +91,14 @@ def create_project():
     project_name = request.form.get('name')
     project_content = request.form.get('content')
     time = request.form.get('start_time')
-    create_at = datetime.strptime(time, '%m/%d/%Y')
+    start_time = datetime.strptime(time, '%m/%d/%Y')
     time = request.form.get('finish_time')
     finish_time = datetime.strptime(time, '%m/%d/%Y')
     steps = []
     for i in range(1, len(request.form)-3):
         steps.append(request.form.get('step'+str(i)))
     p = Project(name=project_name, content=project_content, create_id=current_user.id,
-                create_at=create_at, expected_finish_at=finish_time)
+                start_time=start_time, expected_finish_at=finish_time)
     db.session.add(p)
     db.session.commit()
     user =current_user._get_current_object()
@@ -126,6 +126,23 @@ def add_user(project_id):
     db.session.add(p)
     flash(u'添加成功')
     return redirect(url_for('main.project', project_id=project_id))
+
+
+@main.route('/project/step/<sid>/cancel')
+@login_required
+def step_status_cancel(sid):
+    s = Step.query.get_or_404(sid)
+    if s.project.creator == current_user:
+        s.status = 0
+        s.finish_remark = ''
+        s.finish_at = None
+        p = s.project
+        db.session.add(s)
+        if p.status == 1:
+            p.status = 0
+            p.finish_at = None
+            db.session.add(p)
+        return redirect(url_for('.project', project_id=s.project.id))
 
 
 @main.route('/project/<project_id>/removeUser', methods=['POST'])

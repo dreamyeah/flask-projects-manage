@@ -15,7 +15,17 @@
       var finish_steps_length = {{ finish_steps_length }};
       var steps_length = {{ steps_length }};
       //以下是jquery 完成步骤函数
+
     $(document).ready(function(){
+        $("#create_modal").click(function(){
+        $("#create_project").modal({backdrop: true});
+    });
+        $("#add_modal").click(function(){
+        $("#addNewUsers").modal({backdrop: true});
+    });
+        $("#minus_modal").click(function(){
+        $("#removeUsers").modal({backdrop: true});
+    });
         $(".btn-danger").click(function(){
             var sid = $(this).attr("id");
             $("#finish_step_remark").modal({backdrop: "static"});
@@ -34,9 +44,8 @@
                         else {
                              $('#finish_step_remark').modal('hide');
                              $('#'+dataObj.sid).attr("class","btn btn-success");
-                             $('#'+dataObj.sid).attr("disabled","disabled");
                              $('#'+dataObj.sid).text("已解决");
-                             $('#'+dataObj.sid).text("已解决");
+                             $('#'+dataObj.sid).parent().append('<a class="btn btn-inverse" role="button" href="/project/step/'+dataObj.sid+'/cancel">撤销 </a>');
                              $('#'+'remark'+dataObj.sid).text(remark_text);
                              finish_steps_length = dataObj.finish_steps_length;
                              var progress = (finish_steps_length / steps_length) * 100;
@@ -61,15 +70,14 @@
 {% block page_content %}
 <div class="container-fluid">
   <div class="row">
-
     <!-- 第一个网格 显示user项目信息 -->
     <div class="col-md-2 col-md-offset-1">
-            <a class="btn btn-primary" role="button"data-toggle="modal"  data-target="#create_project"
+            <a class="btn btn-primary" role="button"  id="create_modal"
        style="margin-top:10px;margin-bottom:10px;">+ 新建一个项目</a>
     {% if projects == [] %}
         <h4> 没有项目 </h4>
     {% else %}
-        <h3><span class="glyphicon glyphicon-th-large"> </span>  我参与的项目 </h3>
+        <h6><span class="glyphicon glyphicon-th-large"> </span>  我参与的项目 </h6>
         <div class="list-group">
             {% for p in projects %}
                 {% if not p.status %}
@@ -84,7 +92,7 @@
                  {% endif %}
             {%  endfor %}
         </div>
-        <h3> <span class="glyphicon glyphicon-ok"> </span>  已完成的任务 </h3>
+        <h6> <span class="glyphicon glyphicon-ok"> </span>  已完成的任务 </h6>
        <div class="list-group">
             {% for p in projects %}
                 {% if p.status %}
@@ -115,38 +123,38 @@
             {% endif %}
       <!-- Default panel contents -->
       <div class="panel-heading">
-          <h2>{{ project.name }}</h2>
+          <h5>{{ project.name }}</h5>
               {% if project.status %}
-                  <h4 id="project_time" class="text-right">
-                  项目时间：{{ project.create_at | date_output }} 至 {{ project.finish_at | date_output }}
-                  </h4>
-                  <h4 id="project_status" class="text-right">
+                  <h7 id="project_time" class="text-right">
+                  项目时间：{{ project.start_time | date_output }} 至 {{ project.finish_at | date_output }}
+                  </h7>
+                  <h7 id="project_status" class="text-right">
                   <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span> 项目已完成
-                  </h4>
+                  </h7>
               {% elif (remained_days | days_output) >= 0  %}
-                  <h4 id="project_time" class="text-right">
-                  项目时间：{{ project.create_at | date_output }} 至 {{ project.expected_finish_at | date_output }}
-                  </h4>
-                  <h4 id="project_status" class="text-right">
+                  <h6 id="project_time" class="text-right">
+                  项目时间：{{ project.start_time | date_output }} 至 {{ project.expected_finish_at | date_output }}
+                  </h6>
+                  <h6 id="project_status" class="text-right">
                   <span class="glyphicon glyphicon-time" aria-hidden="true"> </span> 剩下
                       <span class="bignumber">{{ remained_days | days_output }}</span>天
-                  </h4>
+                  </h6>
               {% else %}
-                  <h4 id="project_time" class="text-right">
-                  项目时间：{{ project.create_at | date_output }} 至 {{ project.expected_finish_at | date_output }}
-                  </h4>
-                  <h4 id="project_status" class="text-right">
+                  <h6 id="project_time" class="text-right">
+                  项目时间：{{ project.start_time | date_output }} 至 {{ project.expected_finish_at | date_output }}
+                  </h6>
+                  <h6 id="project_status" class="text-right">
                   <span class="glyphicon glyphicon-time" aria-hidden="true"> </span> 项目超期
                       <span class="bignumber">{{ remained_days | days_output | negate }}</span> 天
-                  </h4>
+                  </h6>
               {% endif %}
       </div>
 
         <div class="panel-body">
-          <h3> {{ project.content }}</h3>
+          <h6> {{ project.content }}</h6>
         </div>
         <div class="progress"  style="margin-top:0px;margin-bottom:20px;">
-          <div id="progress-bar" class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar"
+          <div id="progress-bar" class="progress-bar progress-bar-success" role="progressbar"
                aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ progress }}%">
             <span class="sr-only"></span>
           </div>
@@ -164,12 +172,19 @@
        {% for s in project.steps %}
         <tbody>
           <tr >
-            <td width="60%"> <h4> {{ s.content }} </h4></td>
+            <td width="60%"> <h7> {{ s.content }} </h7></td>
             <td width="20%">
                 {% if  s.status  %}
-                    <a class="btn btn-success" role="button"  disabled="disabled"> 已解决 </a>
+                    <a class="btn btn-success" role="button" > 已解决 </a>
+                     {% if current_user == project.creator %}
+                           <a class="btn btn-inverse" role="button" href="{{ url_for('main.step_status_cancel', sid=s.id) }}">
+                               撤销
+                           </a>
+                     {% endif %}
                 {% else %}
-                    <a class="btn btn-danger" role="button" id="{{ s.id }}"> 待解决 </a>
+                    <a class="btn btn-danger" role="button" id="{{ s.id }}"
+                            {% if current_user != project.creator %} disabled="disabled"{% endif %}> 待解决 </a>
+
                 {% endif %}
             </td>
              <td width="20%" id="remark{{ s.id }}">
@@ -182,7 +197,7 @@
       </table>
     </div>
     <div>
-    <h4> 时间线 </h4>
+    <h6><strong> 时间线</strong> </h6>
     <table class="table table-hover">
     <thead>
       <tr>
@@ -213,18 +228,19 @@
     <!-- 第三个网格 显示项目的成员 -->
     {% if projects != [] %}
     <div class="col-md-1">
-                <h3><span class="glyphicon glyphicon-user"> </span> 项目成员</h3>
+                <h6><span class="glyphicon glyphicon-user"> </span> 项目成员</h6>
         <ul class="list-group">
-        <li class="list-group-item active "> 创建人：{{ project.creator.name }}</li>
+        <li class="list-group-item active text-center "> <span class="glyphicon glyphicon-tag"> </span>
+            {{ project.creator.name }}</li>
         {% for u in project.users %}
-            <li class="list-group-item text-center" >{{ u.name }}</li>
+            <li class="list-group-item text-center" style="font-size: 16px" >{{ u.name }}</li>
         {% endfor %}
-        <a data-toggle="modal"  data-target="#addNewUsers" class="list-group-item text-center" style="color: #31b0d5">
-        <span class="glyphicon glyphicon-plus"> </span>
+        <a id="add_modal" class="list-group-item text-center" style="color: #31b0d5">
+        <span class="glyphicon glyphicon-plus-sign"> </span>
         </a>
         {% if current_user == project.creator %}
-        <a data-toggle="modal"  data-target="#removeUsers" class="list-group-item text-center" style="color: #d53922">
-        <span class="glyphicon glyphicon-minus"> </span>
+        <a id="minus_modal" class="list-group-item text-center" style="color: #d53922">
+        <span class="glyphicon glyphicon-minus-sign"> </span>
         </a>
         {% endif %}
        </ul>
@@ -247,9 +263,9 @@
                data-dismiss="modal" aria-hidden="true" style="color: #ffffff">
                   &times;
             </button>
-            <h3 class="modal-title" id="myModalLabel" style="color: #ffffff">
+            <h6 class="modal-title" id="myModalLabel" style="color: #ffffff">
                创建新项目
-            </h3>
+            </h6>
          </div>
          <div class="modal-body">
                     <form id="createProject" name="createProject"  method="POST" role="form" action=/create_project>
@@ -299,9 +315,9 @@
                data-dismiss="modal" aria-hidden="true" style="color: #ffffff">
                   &times;
             </button>
-            <h3 class="modal-title" id="myModalLabel"style="color: #ffffff">
+            <h6 class="modal-title" id="myModalLabel"style="color: #ffffff">
                添加成员
-            </h3>
+            </h6>
          </div>
          <div class="modal-body">
               <form id="addUser" name="addUser"  method="POST" role="form" action="/project/{{ project.id }}/addUser">
@@ -334,9 +350,9 @@
                data-dismiss="modal" aria-hidden="true" style="color: #ffffff">
                   &times;
             </button>
-            <h3 class="modal-title" id="myModalLabel"style="color: #ffffff">
+            <h6 class="modal-title" id="myModalLabel"style="color: #ffffff">
                移除成员
-            </h3>
+            </h6>
          </div>
          <div class="modal-body">
               <form id="removeForm" name="removeForm"  method="POST" role="form" action="/project/{{ project.id }}/removeUser">
@@ -370,9 +386,9 @@
                data-dismiss="modal" aria-hidden="true">
                   &times;
             </button>
-            <h3 class="modal-title" id="myModalLabel">
+            <h6 class="modal-title" id="myModalLabel">
                完成步骤
-            </h3>
+            </h6>
          </div>
          <div class="modal-body">
                     <div class="form-group">

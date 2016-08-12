@@ -3,88 +3,36 @@
 
 {% block title %}项目进度管理系统 - 登陆{% endblock %}
 {% block body_attribs %}
-background="http://o6gcipdzi.bkt.clouddn.com/gray-back.png" style="background-position: center;background-repeat: no-repeat;background-attachment: fixed;"
-{% endblock %}
-{% block scripts %}
+style=""{% endblock %}
+{% block head %}
 {{ super() }}
-<script src="//code.jquery.com/jquery-latest.min.js"></script>
-<script src="//unslider.com/unslider.js"></script>
-<script>
-$(document).ready(function(e) {
-    var unslider04 = $('#b04').unslider({
-        dots: true
-    }),
-    data04 = unslider04.data('unslider');
-    
-    $('.unslider-arrow04').click(function() {
-        var fn = this.className.split(' ')[1];
-        data04[fn]();
-    });
-});
-</script>
-{% endblock %}
-{%- block styles %}
-{{ super() }}
-<!-- 写点样式，让轮播好看点 -->
-<style>
-ul, ol { padding: 0;}
-.banner { position: relative; overflow: auto; text-align: center;}
-.banner li { list-style: none; }
-.banner ul li { float: left; }
-#b04 { width: 640px;}
-#b04 .dots { position: absolute; left: 0; right: 0; bottom: 20px;}
-#b04 .dots li 
-{ 
-    display: inline-block; 
-    width: 10px; 
-    height: 10px; 
-    margin: 0 4px; 
-    text-indent: -999em; 
-    border: 2px solid #fff; 
-    border-radius: 6px; 
-    cursor: pointer; 
-    opacity: .4; 
-    -webkit-transition: background .5s, opacity .5s; 
-    -moz-transition: background .5s, opacity .5s; 
-    transition: background .5s, opacity .5s;
-}
-#b04 .dots li.active 
-{
-    background: #fff;
-    opacity: 1;
-}
-#b04 .arrow { position: absolute; top: 200px;}
-#b04 #al { left: 15px;}
-#b04 #ar { right: 15px;}
-</style>
+<link href="../../static/css/demo.css" rel="stylesheet">
 {% endblock %}
 {% block page_content %}
-<div class="container" style="margin-top:70px;background-color:#c4c3cd">
-<div class="row" style="margin-top:40px;margin-bottom:40px;">
-
- <div class="col-md-8">
-
-<!-- 把要轮播的地方写上来 -->
-<div class="banner" id="b04">
-    <ul>
-        <li><img src="http://o6gcipdzi.bkt.clouddn.com/wel.jpg" alt="" width="730" height="480" ></li>
-        <li><img src="http://o6gcipdzi.bkt.clouddn.com/content.jpg" alt="" width="730" height="480" ></li>
-        <li><a href="{{ url_for('auth.register') }}"><img src="http://o6gcipdzi.bkt.clouddn.com/3.jpg" alt="" width="730" height="480" ></a></li>
-
-    </ul>
-
-</div></div>
-
-<div class="col-md-4">
-<div class="page-header">
-    <h1><font color="#31373d">登陆</font></h1>
-</div>
-<div style="color:#31373d">
-    {{ wtf.quick_form(form) }}    
-    <br>
-    <p>还没有账号? <a href="{{ url_for('auth.register') }}">点击这里注册</a>.</p>
-</div>
-</div>
-</div>
-</div>
+    <div class="container">
+      <div class="login">
+        <div class="login-screen">
+          <div class="login-icon">
+            <img src="../../static/img/login/Clipboard.png" />
+          </div>
+         <form name="login_form" action="{{ url_for('auth.login') }}" method="post">
+          <div class="login-form">
+            <div class="form-group">
+              <input type="text" class="form-control login-field" value="" placeholder="输入工号" name="uid" />
+              <label class="login-field-icon fui-user" for="login-name"></label>
+            </div>
+            <div class="form-group">
+              <input type="password" class="form-control login-field" value="" placeholder="密码" name="password" />
+              <label class="login-field-icon fui-lock" for="login-pass"></label>
+            </div>
+            <div class="form-group">
+               <label style="color: #131313">
+                <input type="checkbox" id="choice" name="remember_me" > 记住我</label>
+            </div>
+              <input class="btn btn-primary btn-lg btn-block" type ="submit" value ="Log in">
+          </div>
+</form>
+        </div>
+      </div>
+	  </div>
 {% endblock %}
