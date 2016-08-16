@@ -2,7 +2,7 @@
 # coding=utf-8
 import os
 from app import create_app, db
-from app.models import Step, User, Project, Commit
+from app.models import Step, User, Project, Commit, Record
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
 
@@ -39,7 +39,7 @@ def negate_filter(d):
 
 
 def make_shell_context():
-    return dict(app=app, db=db, Step=Step, User=User, Project=Project, Commit=Commit)
+    return dict(app=app, db=db, Step=Step, User=User, Project=Project, Commit=Commit, Record=Record)
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 

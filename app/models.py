@@ -31,12 +31,14 @@ class Project(db.Model):
     content = db.Column(db.Text)
     status = db.Column(db.Boolean, default=0)
     start_time = db.Column(db.DateTime)
-    create_at = db.Column(db.DateTime, default=datetime.utcnow())
+    create_at = db.Column(db.DateTime, default=datetime.utcnow)
     expected_finish_at = db.Column(db.DateTime)
     finish_at = db.Column(db.DateTime, nullable=True)
     create_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     steps = db.relationship('Step', backref='project', lazy='dynamic')
     commits = db.relationship('Commit', backref='project', lazy='dynamic')
+    priority = db.Column(db.Integer, default=0)
+    records = db.relationship('Record', backref='project', lazy='dynamic')
 
     def __repr__(self):
         return '<Name {}>'.format(self.id)
@@ -50,7 +52,7 @@ class User(UserMixin, db.Model):
     passwd = db.Column(db.String(128))
     admin = db.Column(db.Boolean, default=0)
     image_url = db.Column(db.String(500))
-    create_at = db.Column(db.DateTime, default=datetime.utcnow())
+    create_at = db.Column(db.DateTime, default=datetime.utcnow)
     projects = db.relationship('Project',
                                secondary=registrations,
                                backref=db.backref('users', lazy='dynamic'),
@@ -118,3 +120,15 @@ class Commit(db.Model):
 
     def __repr__(self):
         return '<Step {}>'.format(self.id)
+
+
+class Record(db.Model):
+    __tablename__ = 'records'
+
+    id = db.Column(db.String(50), primary_key=True, default=next_id)
+    create_at = db.Column(db.DateTime, default=datetime.utcnow)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+    content = db.Column(db.Text, nullable=True)
+
+    def __repr__(self):
+        return '<Record {}>'.format(self.id)
