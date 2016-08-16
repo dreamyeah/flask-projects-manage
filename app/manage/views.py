@@ -24,6 +24,7 @@ def delete_project(project_id):
     for s in p.steps:
         db.session.delete(s)
     db.session.delete(p)
+    db.session.commit()
     return 'ok', 200
 
 
@@ -34,6 +35,7 @@ def quit_project(project_id):
     p = Project.query.get_or_404(project_id)
     p.users.remove(u)
     db.session.add(p)
+    db.session.commit()
     return 'ok', 200
 
 

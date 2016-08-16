@@ -107,6 +107,7 @@ def create_project():
     for i in steps:
         s = Step(content=i, project=p)
         db.session.add(s)
+    db.session.commit()
     flash(u'创建成功')
     return redirect(url_for('main.project', project_id=p.id))
 
@@ -124,6 +125,8 @@ def add_user(project_id):
     for u in users:
         p.users.append(u)
     db.session.add(p)
+    db.session.commit()
+
     flash(u'添加成功')
     return redirect(url_for('main.project', project_id=project_id))
 
@@ -155,6 +158,7 @@ def remove_user(project_id):
         for u in users:
             p.users.remove(u)
     db.session.add(p)
+    db.session.commit()
     flash(u'移除成功')
     return redirect(url_for('main.project', project_id=project_id))
 
@@ -166,4 +170,5 @@ def git_commit(p_id):
     c = Commit(branch=data['branch'], ref=data['hashref'], cname=data['name'],
                cemail=data['email'], message=data['message'], project=p)
     db.session.add(c)
+    db.session.commit()
     return 'ok', 200

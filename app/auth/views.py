@@ -10,7 +10,6 @@ from .. import db
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        print request.form
         user = User.query.filter_by(id=request.form.get('uid')).first()
         if user is not None and user.verify_password(request.form.get('password')):
             login_user(user, request.form.get('remember_me'))
