@@ -51,8 +51,14 @@
 
 {% endblock %}
 {% block page_content %}
+
 <div class="container">
-<div class="row" style="margin-top:20px;margin-bottom:20px;">
+
+<div class="row">
+<ul class="nav nav-tabs" style="margin-bottom: 16px">
+        <li role="presentation"  class="active"><a href="{{ url_for('.index') }}">我的项目</a></li>
+        <li role="presentation"  ><a href="{{ url_for('.all_projects') }}">其他人的项目</a></li>
+</ul>
      <div>
             <table class="table table-hover">
                 <thead>
@@ -98,4 +104,5 @@
 </div>
 </div>
 
+</div>
 {% endblock %}

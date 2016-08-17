@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}项目管理{% endblock %}
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+      var xmlhttp;
+      $(document).ready(function() {
+          $("#choose_modal").click(function(){
+              $("#chooseUsers").modal({backdrop: true});
+    });
+          $("#minus").click(function () {
+              var url_id = '';
+              var checkednum = $("input:checked");
+              if(checkednum.length > 0){
+                    for (var i=0;i<checkednum.length;i++){
+                        url_id += checkednum[i].name;
+                        url_id += '&';
+                    }
+                  window.location.href='/manage/filter/minus/'+url_id;
+              }
+          })
+
+          $("#union").click(function () {
+              var url_id = '';
+              var checkednum = $("input:checked");
+              if(checkednum.length > 0){
+                    for (var i=0;i<checkednum.length;i++){
+                        url_id += checkednum[i].name;
+                        url_id += '&';
+                    }
+                  window.location.href='/manage/filter/union/'+url_id;
+              }
+          })
+  });
+
+</script>
+
+{% endblock %}
+{% block page_content %}
+
+<div class="container">
+
+<div class="row">
+<ul class="nav nav-tabs" style="margin-bottom: 16px">
+        <li role="presentation" ><a href="{{ url_for('.index') }}">我的项目</a></li>
+        <li role="presentation"  class="active"><a href="{{ url_for('.all_projects') }}">其他人的项目</a></li>
+</ul>
+     <div>
+         <p style="margin-top: 10px">
+             <a id="choose_modal"  role="button" class="btn btn-inverse">
+                 <span class="fui-search"> 筛选/查询
+                 </span>
+             </a>
+         </p>
+         <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th width="20%">项目名</th>
+                    <th width="40%">项目内容</th>
+                    <th width="10%">创建时间</th>
+                    <th width="15%">创建人</th>
+                    <th width="10%">状态</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for p in projects %}
+                        <tr>
+                            <td><a href="{{ url_for('main.project', project_id=p.id) }}">{{ p.name }}</a></td>
+                            <td>{{ p.content }}</td>
+                            <td>{{ moment(p.create_at).fromNow(refresh=True) }}</td>
+                            <td>
+                                {{ p.creator.name }}
+                            </td>
+                            <td>{% if p.status %} 已完成 {% else %} 未完成 {% endif %}</td>
+                        </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+    </div>
+</div>
+
+</div>
+
+
+    <!-- 模态框（Modal）选择筛选成员用 -->
+<div class="modal fade" id="chooseUsers" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header" style="background-color: rgba(19, 19, 19, 0.77)">
+            <button type="button" class="close"
+               data-dismiss="modal" aria-hidden="true" style="color: #ffffff">
+                  &times;
+            </button>
+            <h6 class="modal-title" id="myModalLabel"style="color: #ffffff">
+                 <span class="login-field-icon fui-user"> </span>
+               选择用户
+            </h6>
+         </div>
+         <div class="modal-body">
+                  {% for u in other_users %}
+                  <div class="form-group">
+                  <form>
+                      <label>
+                          <p><input type="checkbox"  name="{{ u.id }}"  />
+                              {{ u.name }}</p>
+                      </label>
+                  </form>
+                  </div>
+                   {% endfor %}
+                  <div class="modal-footer">
+                      <button id="union" class="btn btn-primary" >并集查询</button>
+                      <button id="minus" class="btn btn-primary" >差集查询</button>
+                  </div>
+
+         </div>
+      </div><!-- /.modal-content -->
+</div><!-- /.modal -->
+</div>
+   <!-- /.添加成员项目框结束 -->
+{% endblock %}

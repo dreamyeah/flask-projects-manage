@@ -1,20 +1,31 @@
 # -*- coding: utf-8 -*-
 from flask import render_template, redirect, request, url_for, flash, current_app
 from flask.ext.login import login_user, logout_user, login_required, current_user
-from ..models import Project
+from ..models import Project, User
 from . import manage
 from .. import db
 
 
-@manage.route("/", methods=['GET', 'POST'])
+@manage.route("/", methods=['GET'])
 @login_required
 def index():
     page = request.args.get('page', 1, type=int)
     pagination = current_user.projects.order_by(Project.create_at.desc()).paginate(
         page, per_page=current_app.config['TASK_POSTS_PER_PAGE'],
         error_out=False)
-    return render_template('manage/manage_project.html',projects=pagination.items,
-                           pagination=pagination)
+    return render_template('manage/manage_project.html', projects=pagination.items, pagination=pagination)
+
+
+@manage.route("/all", methods=['GET'])
+@login_required
+def all_projects():
+    page = request.args.get('page', 1, type=int)
+    pagination = Project.query.filter(Project.creator != current_user).order_by(Project.create_at.desc()).paginate(
+        page, per_page=current_app.config['TASK_POSTS_PER_PAGE'],
+        error_out=False)
+    other_users = User.query.all()
+    return render_template('manage/manage_all.html', projects=pagination.items, pagination=pagination,
+                           other_users=other_users)
 
 
 @manage.route("/delete/<project_id>", methods=['DELETE'])
@@ -39,4 +50,32 @@ def quit_project(project_id):
     return 'ok', 200
 
 
+@manage.route("/filter/minus/<info>", methods=['GET'])
+@login_required
+def filter_minus(info):
+    user_ids = info.strip('&').split('&')
+    users = User.query.filter(User.id.in_(user_ids)).all()
+    if len(users) > 0:
+        minus_projects=set(users[0].projects)
+        for i in xrange(1,len(users)):
+            minus_projects = set(users[i].projects) & minus_projects
 
+    else:
+        minus_projects = {}
+    # diff_projects = list(set(all_projects))
+    # for p in diff_projects:
+    #     all_projects.remove(p)
+    other_users = User.query.all()
+
+    return render_template('manage/filter_minus.html', projects=minus_projects,
+                           other_users=other_users)
+
+
+@manage.route("/filter/union/<info>", methods=['GET'])
+@login_required
+def filter_union(info):
+    user_ids = info.strip('&').split('&')
+    users = User.query.filter(User.id.in_(user_ids)).all()
+    other_users = User.query.all()
+    return render_template('manage/filter_union.html', users=users,
+                           other_users=other_users)

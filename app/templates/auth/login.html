@@ -6,14 +6,14 @@
 style=""{% endblock %}
 {% block head %}
 {{ super() }}
-<link href="../../static/css/demo.css" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/demo.css') }}" rel="stylesheet">
 {% endblock %}
 {% block page_content %}
     <div class="container">
       <div class="login">
         <div class="login-screen">
           <div class="login-icon">
-            <img src="../../static/img/login/Clipboard.png" />
+            <img src="{{ url_for('static', filename='img/login/Clipboard.png') }}" />
           </div>
          <form name="login_form" action="{{ url_for('auth.login') }}" method="post">
           <div class="login-form">

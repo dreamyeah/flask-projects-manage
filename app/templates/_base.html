@@ -14,15 +14,15 @@
     {%- block styles %}
     <!-- Bootstrap -->
 	{% block scripts %}
-    <script src="../static/jquery.js"></script>
-    <script src="../static/js/jquery-ui.js"></script>
-    <script src="../static/js/bootstrap.js"></script>
-    <script src="../static/js/flat-ui.min.js"></script>
+    <script src="{{ url_for('static', filename='jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/flat-ui.min.js') }}"></script>
     {%- endblock scripts %}
     <link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet" media="screen">
-	<link href="../static/css/jquery-ui.css" rel="stylesheet">
-    <link href="../static/css/bootstrap.css" rel="stylesheet" media="screen">
-    <link href="../static/css/flat-ui.min.css" rel="stylesheet">
+	<link href="{{ url_for('static', filename='css/jquery-ui.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet" media="screen">
+    <link href="{{ url_for('static', filename='css/flat-ui.min.css') }}" rel="stylesheet">
     {%- endblock styles %}
     {%- endblock head %}
   </head>

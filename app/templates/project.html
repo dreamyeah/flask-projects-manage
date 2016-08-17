@@ -7,8 +7,8 @@
 {% endblock %}
 {% block head %}
 {{ super() }}
-    <link href="../static/css/star-rating.css" rel="stylesheet" media="screen">
-    <script src="../static/js/star-rating.js"></script>
+    <link href="{{ url_for('static', filename='css/star-rating.css') }}" rel="stylesheet" media="screen">
+    <script src="{{ url_for('static', filename='js/star-rating.js') }}"></script>
 <style type="text/css">
 .bignumber {font-size:40px;}
 </style>
@@ -62,7 +62,9 @@
                              $('#finish_step_remark').modal('hide');
                              $('#'+dataObj.sid).attr("class","btn btn-success");
                              $('#'+dataObj.sid).text("已解决");
-                             $('#'+dataObj.sid).parent().append('<a class="btn btn-inverse" role="button" href="/project/step/'+dataObj.sid+'/cancel">撤销 </a>');
+                             if($('#'+dataObj.sid).parent().find('a').length == 1){
+                                 $('#'+dataObj.sid).parent().append('<a class="btn btn-inverse" role="button" href="/project/step/'+dataObj.sid+'/cancel">撤销 </a>');
+                             }
                              $('#'+'remark'+dataObj.sid).text(remark_text);
                              finish_steps_length = dataObj.finish_steps_length;
                              var progress = (finish_steps_length / steps_length) * 100;
@@ -94,7 +96,12 @@
     {% if projects == [] %}
         <h4> 没有项目 </h4>
     {% else %}
-        <h6><span class="glyphicon glyphicon-th-large"> </span>  我参与的项目 </h6>
+        <ul class="nav nav-tabs" style="margin-bottom: 10px;margin-top: 20px">
+           <li role="presentation">
+                <span class="glyphicon glyphicon-th-large"></span> 我参与的项目
+           </li>
+        </ul>
+
         <div class="list-group">
             {% for p in projects %}
                 {% if not p.status %}
@@ -115,8 +122,11 @@
                  {% endif %}
             {%  endfor %}
         </div>
-        <h6> <span class="glyphicon glyphicon-ok"> </span>  已完成的任务 </h6>
-       <div class="list-group">
+<ul class="nav nav-tabs" style="margin-bottom: 10px;margin-top: 20px">
+           <li role="presentation">
+                <span class="glyphicon glyphicon-ok"></span> 已完成的项目
+           </li>
+        </ul>       <div class="list-group">
             {% for p in projects %}
                 {% if p.status %}
                  {% if p == project %}
@@ -158,28 +168,28 @@
               {% endfor %}
           </h5>
               {% if project.status %}
-                  <h6 id="project_time" class="text-right">
+                  <p id="project_time" class="text-right">
                   项目时间：{{ project.start_time | date_output }} 至 {{ project.finish_at | date_output }}
-                  </h6>
-                  <h6 id="project_status" class="text-right">
+                  </p>
+                  <p id="project_status" class="text-right">
                   <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span> 项目已完成
                   </h6>
               {% elif (remained_days | days_output) >= 0  %}
-                  <h6 id="project_time" class="text-right">
+                  <p id="project_time" class="text-right">
                   项目时间：{{ project.start_time | date_output }} 至 {{ project.expected_finish_at | date_output }}
-                  </h6>
-                  <h6 id="project_status" class="text-right">
+                  </p>
+                  <p id="project_status" class="text-right">
                   <span class="glyphicon glyphicon-time" aria-hidden="true"> </span> 剩下
                       <span class="bignumber">{{ remained_days | days_output }}</span>天
-                  </h6>
+                  </p>
               {% else %}
-                  <h6 id="project_time" class="text-right">
+                  <p id="project_time" class="text-right">
                   项目时间：{{ project.start_time | date_output }} 至 {{ project.expected_finish_at | date_output }}
-                  </h6>
-                  <h6 id="project_status" class="text-right">
+                  </p>
+                  <p id="project_status" class="text-right">
                   <span class="glyphicon glyphicon-time" aria-hidden="true"> </span> 项目超期
                       <span class="bignumber">{{ remained_days | days_output | negate }}</span> 天
-                  </h6>
+                  </p>
               {% endif %}
       </div>
 
@@ -232,7 +242,7 @@
 
     <!-- 两个选项-->
     <ul class="nav nav-tabs">
-        <li role="presentation" class="active" id="operation_history"><a>操作历史</a></li>
+        <li role="presentation" class="active" id="operation_history"><a><span class="fui-time"> 操作历史</span></a></li>
         <li role="presentation" id="commit_history"><a>commits</a></li>
     </ul>
 
@@ -284,8 +294,8 @@
     <!-- 第三个网格 显示项目的成员 -->
     {% if projects != [] %}
     <div class="col-md-1">
-                <h6><span class="glyphicon glyphicon-user"> </span> 项目成员</h6>
         <ul class="list-group">
+        <h6 class="text-center"> <span class="glyphicon glyphicon-user "></span></h6>
         <li class="list-group-item active text-center "> <span class="glyphicon glyphicon-tag"> </span>
             {{ project.creator.name }}</li>
         {% for u in project.users %}
@@ -387,8 +397,8 @@
                   {% for u in other_users %}
                   <div class="form-group">
                       <label>
-                          <h4><input type="checkbox" id="choice" name="{{ u.id }}">
-                              {{ u.name }}</h4>
+                          <p><input type="checkbox" id="choice" name="{{ u.id }}">
+                              {{ u.name }}</p>
                       </label>
 
                   </div>
@@ -425,8 +435,8 @@
                   {% if u != current_user and u != project.creator %}
                   <div class="form-group">
                       <label>
-                          <h4><input type="checkbox" id="choice" name="{{ u.id }}">
-                              <span class="login-field-icon fui-user"> </span>{{ u.name }}</h4>
+                          <p><input type="checkbox" id="choice" name="{{ u.id }}">
+                              {{ u.name }}</p>
                       </label>
                   </div>
                       {% endif %}
