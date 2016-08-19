@@ -88,9 +88,12 @@
                         {% if current_user == p.creator %}
                             <a  id="{{ p.id }}"
                                 role="button" class="btn btn-danger"> 删除 </a>
+
                         {% else %}
                             <a id="{{ p.id }}" role="button" class="btn btn-warning"> 退出 </a>
                         {% endif %}
+                        <a href='{{ url_for('main.edit', project_id=p.id) }}'
+                               type="button" class="btn btn-primary">编辑 </a>
                     </td>
                 </tr>
             {% endfor %}
