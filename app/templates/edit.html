@@ -1,0 +1,392 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}编辑{% endblock %}
+{% block head %}
+{{ super() }}
+    <link href="{{ url_for('static', filename='css/star-rating.css') }}" rel="stylesheet" media="screen"
+          xmlns="http://www.w3.org/1999/html">
+    <script src="{{ url_for('static', filename='js/star-rating.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#name").click(function(){
+                $("#name_modal").modal({backdrop: true});
+        });
+            $("#name_button").click(function () {
+                $.post("{{ url_for('.edit_name', project_id=project.id) }}",
+                {
+                    name:$('#name_input').val()
+                }, function (data,status) {
+                            if(status === 'success'){
+                                $("#name_modal").modal('hide');
+                                $('#name').attr('value', data);
+                            }
+                })
+            });
+
+            $("#content").click(function(){
+                $("#content_modal").modal({backdrop: true});
+        });
+
+            $("#content_button").click(function () {
+                $.post("{{ url_for('.edit_content', project_id=project.id) }}",
+                {
+                    content:$('#content_input').val()
+                }, function (data,status) {
+                            if(status === 'success'){
+                                $("#content_modal").modal('hide');
+                                $('#content').text(data);
+                            }
+                })
+            });
+            $("#start_time").click(function(){
+                $("#start_time_modal").modal({backdrop: true});
+        });
+            $("#start_time_button").click(function () {
+                $.post("{{ url_for('.edit_start_time', project_id=project.id) }}",
+                {
+                    time:$('#start_time_input').val()
+                }, function (data,status) {
+                            if(status === 'success'){
+                                $("#start_time_modal").modal('hide');
+                                $('#start_time').attr('value', data);
+                            }
+                })
+            });
+            $("#finish_time").click(function(){
+                $("#finish_time_modal").modal({backdrop: true});
+        });
+            $("#finish_time_button").click(function () {
+                $.post("{{ url_for('.edit_end_time', project_id=project.id) }}",
+                {
+                    time:$('#finish_time_input').val()
+                }, function (data,status) {
+                            if(status === 'success'){
+                                $("#finish_time_modal").modal('hide');
+                                $('#finish_time').attr('value', data);
+                            }
+                })
+            });
+            $("#priority").click(function(){
+                $("#priority_modal").modal({backdrop: true});
+        });
+            $("#priority_button").click(function () {
+                $.post("{{ url_for('.edit_priority', project_id=project.id) }}",
+                {
+                    priority:$('#priority_input').val()
+                }, function (data,status) {
+                            if(status === 'success'){
+                                $("#priority_modal").modal('hide');
+                                $('#priority_stars').html(data);
+                            }
+                })
+            })
+            {% for s in project.steps %}
+            $("#{{ s.id }}").click(function(){
+                $("#step_modal{{ s.id }}").modal({backdrop: true});
+        });
+            $("#step_button{{ s.id }}").click(function () {
+                $.post("{{ url_for('.edit_step', step_id=s.id) }}",
+                {
+                    content:$('#step_input{{ s.id }}').val()
+                }, function (data,status) {
+                            if(status === 'success'){
+                                $("#step_modal{{ s.id }}").modal('hide');
+                                $('#{{ s.id }}').attr('value', data);
+                            }
+                })
+            });
+            {% endfor %}
+
+        $(".btn-danger").click(function () {
+            if($("#steps_group").find("div").length > 1){
+            var sid = $(this).parent().parent().attr('id');
+            if(confirm("确认移除？此操作不可逆")){
+                $.get($(this).attr('id'), function (data, status) {
+                    if(status === 'success'){
+                        $('#'+sid).remove();
+                    }
+                })
+            }
+            }
+            else {
+                 $("#warn").html('<div class="alert alert-warning alert-dismissible"' +
+                         ' role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                         '<span aria-hidden="true">&times;</span></button> ' +
+                         '<strong>注意注意！</strong> 步骤不能绝后呀 </div>')
+            }
+        });
+          $("#add_button").click(function(){
+                $("#add_modal").modal({backdrop: true});
+        });
+            $("#add_step_button").click(function () {
+                $.post("{{ url_for('.add_step', project_id=project.id) }}",
+                {
+                    content:$('#add_step_input').val()
+                }, function (data,status) {
+                            if(status === 'success'){
+                                $("#add_modal").modal('hide');
+{#                                $('#steps_group').append(data);#}
+                                window.location.reload();
+                            }
+                })
+            })
+    });
+
+
+    </script>
+{% endblock %}
+{% block page_content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+        <!-- 警告框预留位置 -->
+        <div id="warn"></div>
+        <!-- 警告框结束-->
+        <form  role="form">
+            <div class="form-group">
+                <label for="inputName">项目名称</label>
+                <input type="text" class="form-control" id="name"
+                       name="name" value="{{ project.name }}"/>
+            </div>
+            <div class="form-group">
+                <label for="inputContent">项目内容</label>
+                <textarea  type="text" class="form-control"  rows="3"
+                           id="content" name="content" >{{ project.content }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="date">项目起始时间</label>
+                <input type="text" class="form-control"  id="start_time"
+                       name="start_time" value="{{ project.start_time }}" >
+            </div>
+            <div class="form-group">
+                <label for="date">预期完成时间</label>
+                <input type="text" class="form-control"  id="finish_time"
+                       name="finish_time" value="{{ project.expected_finish_at }}">
+            </div>
+            <div class="form-group" id="priority">
+                <label for="inputContent">项目优先级</label>
+                <div id="priority_stars">
+                {% for _ in range(project.priority) %}
+                       <span class="glyphicon glyphicon-star" style="color: #f1c40f; "></span>
+                {% endfor %}
+                </div>
+            </div>
+            <div id="steps_group">
+            {% for i in range(length) %}
+                <div class="form-group" id="step{{ i }}">
+                    <label for="inputStep1">步骤{{ i }}</label>
+                    <p><input type="text" style="display: inline;width: 93%" class="form-control" id="{{ project.steps[i].id }}"  value="{{ project.steps[i].content }}" >
+                    <a style="display: inline" class="btn btn-danger"
+                           id="/step_remove/{{ project.steps[i].id }}" >
+                            —
+                    </a></p>
+                </div>
+            {% endfor %}
+            </div>
+
+            <div style="margin-top:20px;margin-bottom:20px;">
+                <a class="btn btn-info"   id="add_button" >  + 添加新步骤  </a>
+            </div>
+        </form>
+    </div>
+    </div>
+</div>
+
+    <!-- 改名字模拟框 -->
+<div class="modal fade" id="name_modal" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-header" style="background-color: rgba(19, 19, 19, 0.77)">
+               <button type="button" class="close"
+                       data-dismiss="modal" aria-hidden="true">&times;
+               </button>
+               <h6 class="modal-title" id="myModalLabel" style="color: #ffffff">
+                   修改项目名
+               </h6>
+           </div>
+           <div class="modal-body">
+               <div class="form-group">
+                   <label for="inputContent">项目名</label>
+                   <input type="text" class="form-control" value="{{ project.name }}" id="name_input" name="name" />
+               </div>
+               <div class="modal-footer">
+                   <button class="btn btn-primary" id="name_button" >确认修改</button>
+               </div>
+           </div>
+       </div><!-- /.modal-content -->
+   </div><!-- /.modal -->
+</div>
+
+    <!-- 改内容模拟框 -->
+<div class="modal fade" id="content_modal" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-header" style="background-color: rgba(19, 19, 19, 0.77)">
+               <button type="button" class="close"
+                       data-dismiss="modal" aria-hidden="true">&times;
+               </button>
+               <h6 class="modal-title" id="myModalLabel" style="color: #ffffff">
+                   修改项目内容
+               </h6>
+           </div>
+           <div class="modal-body">
+               <div class="form-group">
+                   <label for="inputContent">项目内容</label>
+                   <input type="text" class="form-control" value="{{ project.content }}" id="content_input" name="content_input" />
+               </div>
+               <div class="modal-footer">
+                   <button class="btn btn-primary" id="content_button" >确认修改</button>
+               </div>
+           </div>
+       </div><!-- /.modal-content -->
+   </div><!-- /.modal -->
+</div>
+    <!-- 改开始日期模拟框 -->
+<div class="modal fade" id="start_time_modal" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-header"  style="background-color: rgba(19, 19, 19, 0.77)">
+               <button type="button" class="close"
+                       data-dismiss="modal" aria-hidden="true">&times;
+               </button>
+               <h6 class="modal-title" id="myModalLabel" style="color: #ffffff">
+                   修改项目开始日期
+               </h6>
+           </div>
+           <div class="modal-body">
+               <div class="form-group">
+                   <label for="inputContent">项目开始日期</label>
+                   <input type="text" class="form-control" value="{{ project.start_time }}" id="start_time_input" name="start_time_input" />
+               </div>
+               <div class="modal-footer">
+                   <button class="btn btn-primary" id="start_time_button" >确认修改</button>
+               </div>
+           </div>
+       </div><!-- /.modal-content -->
+   </div><!-- /.modal -->
+</div>
+
+    <!-- 改结束日期模拟框 -->
+<div class="modal fade" id="finish_time_modal" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-header"  style="background-color: rgba(19, 19, 19, 0.77)">
+               <button type="button" class="close"
+                       data-dismiss="modal" aria-hidden="true">&times;
+               </button>
+               <h6 class="modal-title" id="myModalLabel" style="color: #ffffff">
+                   修改项目结束日期
+               </h6>
+           </div>
+           <div class="modal-body">
+               <div class="form-group">
+                   <label for="inputContent">项目结束日期</label>
+                   <input type="text" class="form-control" value="{{ project.excepted_finish_at }}" id="finish_time_input" name="finish_time_input" />
+               </div>
+               <div class="modal-footer">
+                   <button class="btn btn-primary" id="finish_time_button" >确认修改</button>
+               </div>
+           </div>
+       </div><!-- /.modal-content -->
+   </div><!-- /.modal -->
+</div>
+
+    <!-- 改优先级模拟框 -->
+<div class="modal fade" id="priority_modal" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-header"  style="background-color: rgba(19, 19, 19, 0.77)">
+               <button type="button" class="close"
+                       data-dismiss="modal" aria-hidden="true">&times;
+               </button>
+               <h6 class="modal-title" id="myModalLabel" style="color: #ffffff">
+                   修改项目优先级
+               </h6>
+           </div>
+           <div class="modal-body">
+               <div class="form-group">
+                   <label for="inputContent">项目优先级</label>
+                   <input  type="number" class="rating"
+                                min=0 max=5 step=1 data-size="xs" id="priority_input" name="priority"/>
+               </div>
+               <div class="modal-footer">
+                   <button class="btn btn-primary" id="priority_button" >确认修改</button>
+               </div>
+           </div>
+       </div><!-- /.modal-content -->
+   </div><!-- /.modal -->
+</div>
+
+{% for i in range(length) %}
+        <!-- 改步骤模拟框 -->
+<div class="modal fade" id="step_modal{{ project.steps[i].id }}" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-header"  style="background-color: rgba(19, 19, 19, 0.77)">
+               <button type="button" class="close"
+                       data-dismiss="modal" aria-hidden="true">&times;
+               </button>
+               <h6 class="modal-title" id="myModalLabel"style="color: #ffffff">
+                   修改步骤
+               </h6>
+           </div>
+           <div class="modal-body">
+               <div class="form-group">
+                   <label for="inputContent">步骤{{ i }}</label>
+                   <input type="text" class="form-control" id="step_input{{ project.steps[i].id }}" value="{{ project.steps[i].content }}">
+               </div>
+               <div class="modal-footer">
+                   <button class="btn btn-primary" id="step_button{{ project.steps[i].id  }}" >确认修改</button>
+               </div>
+           </div>
+       </div><!-- /.modal-content -->
+   </div><!-- /.modal -->
+</div>
+{% endfor %}
+
+<!-- 添加步骤模拟框 -->
+<div class="modal fade" id="add_modal" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-header"  style="background-color: rgba(19, 19, 19, 0.77)">
+               <button type="button" class="close"
+                       data-dismiss="modal" aria-hidden="true">&times;
+               </button>
+               <h6 class="modal-title" id="myModalLabel" style="color: #ffffff">
+                  添加步骤
+               </h6>
+           </div>
+           <div class="modal-body">
+               <div class="form-group">
+                   <label for="inputContent">新步骤</label>
+                   <input type="text" class="form-control" id="add_step_input" >
+               </div>
+               <div class="modal-footer">
+                   <button class="btn btn-primary" id="add_step_button">确认修改</button>
+               </div>
+           </div>
+       </div><!-- /.modal-content -->
+   </div><!-- /.modal -->
+</div>
+    <!-- 模拟框结束 -->
+
+<script>
+//创建project模拟框的两个时间选择器触发函数
+$( "#start_time_input" ).datepicker({
+	inline: true
+});
+$( "#finish_time_input" ).datepicker({
+	inline: true
+});
+</script>
+{% endblock %}

@@ -39,6 +39,7 @@ class Project(db.Model):
     commits = db.relationship('Commit', backref='project', lazy='dynamic')
     priority = db.Column(db.Integer, default=0)
     records = db.relationship('Record', backref='project', lazy='dynamic')
+    del_flag = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return '<Name {}>'.format(self.id)
@@ -101,6 +102,8 @@ class Step(db.Model):
     finish_at = db.Column(db.DateTime, nullable=True)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     finish_remark = db.Column(db.Text, nullable=True)
+    del_flag = db.Column(db.Boolean, default=False)
+
 
     def __repr__(self):
         return '<Step {}>'.format(self.id)

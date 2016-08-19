@@ -22,8 +22,10 @@
                     $('#'+pid).parent().parent().remove();
                 }
             }
-            xmlhttp.open("DELETE", "/manage/delete/" + pid, true);
-            xmlhttp.send();
+            if(confirm("确认删除项目吗？")){
+                xmlhttp.open("PUT", "/manage/delete/" + pid, true);
+                xmlhttp.send();
+            }
         });
         //退出按钮触发函数
          $(".btn-warning").click(function () {
@@ -40,8 +42,10 @@
                     $('#'+pid).parent().parent().remove();
                 }
             }
-            xmlhttp.open("PUT", "/manage/quit/" + pid, true);
-            xmlhttp.send();
+             if(confirm("确认退出项目吗？")){
+                 xmlhttp.open("PUT", "/manage/quit/" + pid, true);
+                 xmlhttp.send();
+             }
         });
     });
 
@@ -55,54 +59,51 @@
 <div class="container">
 
 <div class="row">
-<ul class="nav nav-tabs" style="margin-bottom: 16px">
+    <ul class="nav nav-tabs" style="margin-bottom: 16px">
         <li role="presentation"  class="active"><a href="{{ url_for('.index') }}">我的项目</a></li>
         <li role="presentation"  ><a href="{{ url_for('.all_projects') }}">其他人的项目</a></li>
-</ul>
-     <div>
-            <table class="table table-hover">
-                <thead>
+        <li role="presentation"  ><a href="{{ url_for('.dustbin') }}">垃圾箱</a></li>
+    </ul>
+    <div>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th width="15%">项目名</th>
+                <th width="35%">项目内容</th>
+                <th width="10%">创建时间</th>
+                <th width="15%">创建人</th>
+                <th width="10%">状态</th>
+                <th width="15%"> <th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for p in projects %}
                 <tr>
-                    <th width="15%">项目名</th>
-                    <th width="35%">项目内容</th>
-                    <th width="10%">创建时间</th>
-                    <th width="15%">创建人</th>
-                    <th width="10%">状态</th>
-                    <th width="15%"> <th>
+                    <td><a href="{{ url_for('main.project', project_id=p.id) }}">{{ p.name }}</a></td>
+                    <td>{{ p.content }}</td>
+                    <td>{{ moment(p.create_at).fromNow(refresh=True) }}</td>
+                    <td>{{ p.creator.name }}</td>
+                    <td>{% if p.status %} 已完成 {% else %} 未完成 {% endif %}</td>
+                    <td>
+                        {% if current_user == p.creator %}
+                            <a  id="{{ p.id }}"
+                                role="button" class="btn btn-danger"> 删除 </a>
+                        {% else %}
+                            <a id="{{ p.id }}" role="button" class="btn btn-warning"> 退出 </a>
+                        {% endif %}
+                    </td>
                 </tr>
-                </thead>
-                <tbody>
-                {% for p in projects %}
-                        <tr>
-                            <td>{{ p.name }}</td>
-                            <td>{{ p.content }}</td>
-                            <td>{{ moment(p.create_at).fromNow(refresh=True) }}</td>
-                            <td>
-                                {{ p.creator.name }}
-                            </td>
-                            <td>{% if p.status %} 已完成 {% else %} 未完成 {% endif %}</td>
-                            <td>
-                                {% if current_user == p.creator %}
-                                    <a  id="{{ p.id }}"
-                                       role="button" class="btn btn-danger"> 删除 </a>
-                                {% else %}
-                                <a id="{{ p.id }}" role="button" class="btn btn-warning"> 退出 </a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 <div class="row">
- <div class="col-md-4 col-md-offset-4">
- <div class="pagination">
-        {{ macros.pagination_widget(pagination, '.index') }}
- </div>
+    <div class="col-md-4 col-md-offset-4">
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination, '.index') }}
+        </div>
+    </div>
 </div>
-</div>
-
 </div>
 {% endblock %}

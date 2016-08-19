@@ -16,9 +16,9 @@ def index():
     '''
     # print 'projects', current_user.projects
     if current_user.admin:
-        p = Project.query.order_by(Project.priority.desc()).all()
+        p = Project.query.filter_by(del_flag=False).order_by(Project.priority.desc()).all()
     else:
-        p = current_user.projects.order_by(Project.priority.desc()).all()
+        p = current_user.projects.filter_by(del_flag=False).order_by(Project.priority.desc()).all()
     # print(p[0])
     if p == []:
         progress = 0
@@ -58,9 +58,9 @@ def project(project_id):
     other_users = db.session.query(User).filter(User.id.notin_([u.id for u in p.users])).all()
     # print [u.id for u in p.users], [u.id for u in other_users]
     if current_user.admin:
-        projects = Project.query.order_by(Project.priority.desc()).all()
+        projects = Project.query.filter_by(del_flag=False).order_by(Project.priority.desc()).all()
     else:
-        projects = current_user.projects.order_by(Project.priority.desc()).all()
+        projects = current_user.projects.filter_by(del_flag=False).order_by(Project.priority.desc()).all()
     return render_template('project.html', project=p, projects=projects,
                            progress=progress, finish_steps_length=finish_steps_length,
                            steps_length=steps_length, remained_days=remained_days,
@@ -109,7 +109,7 @@ def create_project():
     start_time = datetime.strptime(time, '%m/%d/%Y')
     time = request.form.get('finish_time')
     finish_time = datetime.strptime(time, '%m/%d/%Y')
-    priority = request.form.get('priority')
+    priority = int(request.form.get('priority'))
     steps = []
     for i in range(1, len(request.form) - 4):
         steps.append(request.form.get('step' + str(i)))
@@ -191,8 +191,143 @@ def git_commit(p_id):
     c = Commit(branch=data['branch'], ref=data['hashref'], cname=data['name'],
                cemail=data['email'], message=data['message'], project=p)
     db.session.add(c)
-    record = Record(project=p, content=u'git账户{0}<{1}>提交了一次commit，备注是{2}'.format(data['name'],
-                                                                                 data['email'], data['message']))
+    record = Record(project=p, content=u"git账户{0}<{1}>提交了一次commit，备注是:\"{2}\"".format(data['name'],
+                                                                                    data['email'], data['message']))
     db.session.add(record)
     db.session.commit()
     return 'ok', 200
+
+
+@main.route('/edit/<project_id>', methods=['GET'])
+def edit(project_id):
+    p = Project.query.get_or_404(project_id)
+    return render_template('edit.html', project=p, length=len(p.steps.all()))
+
+
+@main.route('/edit_name/<project_id>', methods=['POST'])
+def edit_name(project_id):
+    p = Project.query.get_or_404(project_id)
+    old_name = p.name
+    name = request.form.get('name')
+    p.name = name
+    db.session.add(p)
+    record = Record(project=p, content=u"{0}将对项目名称进行了编辑，"
+                                       u"从\"{1}\"更改为\"{2}\"".format(current_user.name, old_name, name))
+    db.session.add(record)
+    db.session.commit()
+    return name, 200
+
+
+@main.route('/edit_content/<project_id>', methods=['POST'])
+def edit_content(project_id):
+    p = Project.query.get_or_404(project_id)
+    old_content = p.content
+    content = request.form.get('content')
+    p.content = old_content
+    db.session.add(p)
+    record = Record(project=p, content=u"{0}将对项目内容进行了编辑，"
+                                       u"从\"{1}\"更改为\"{2}\"".format(current_user.name, old_content, content))
+    db.session.add(record)
+    db.session.commit()
+    return content, 200
+
+
+@main.route('/edit_start_time/<project_id>', methods=['POST'])
+def edit_start_time(project_id):
+    p = Project.query.get_or_404(project_id)
+    old_time = p.start_time
+    time = request.form.get('time')
+    try:
+        start_time = datetime.strptime(time, '%m/%d/%Y')
+    except:
+        return str(p.start_time), 200
+    p.start_time = start_time
+    db.session.add(p)
+    record = Record(project=p, content=u"{0}将对项目开始时间进行了编辑，"
+                                       u"时间从\"{1}\"更改为\"{2}\"".format(current_user.name, old_time, start_time))
+    db.session.add(record)
+    db.session.commit()
+    return str(start_time), 200
+
+
+@main.route('/edit_end_time/<project_id>', methods=['POST'])
+def edit_end_time(project_id):
+    p = Project.query.get_or_404(project_id)
+    old_time = p.expected_finish_at
+    time = request.form.get('time')
+    try:
+        end_time = datetime.strptime(time, '%m/%d/%Y')
+    except:
+        return str(p.expected_finish_at), 200
+    p.expected_finish_at = end_time
+    db.session.add(p)
+    record = Record(project=p, content=u"{0}将对期望完成时间进行了编辑，"
+                                       u"时间从\"{1}\"更改为\"{2}\"".format(current_user.name, old_time, end_time))
+    db.session.add(record)
+    db.session.commit()
+    return str(end_time), 200
+
+
+@main.route('/edit_priority/<project_id>', methods=['POST'])
+def edit_priority(project_id):
+    p = Project.query.get_or_404(project_id)
+    old_priority = p.priority
+    priority = int(request.form.get('priority'))
+    p.priority = priority
+    db.session.add(p)
+    record = Record(project=p, content=u"{0}将对优先级进行了编辑，"
+                                       u"优先级从\"{1}\"更改为\"{2}\"".format(current_user.name, old_priority, priority))
+    db.session.add(record)
+    db.session.commit()
+    ret = ''
+
+    for _ in range(priority):
+        ret += '<span class ="glyphicon glyphicon-star" style="color: #f1c40f;" > </span>'
+    return ret, 200
+
+
+@main.route('/edit_step/<step_id>', methods=['POST'])
+def edit_step(step_id):
+    s = Step.query.get_or_404(step_id)
+    old_content = s.content
+    content = request.form.get('content')
+    s.content = content
+    db.session.add(s)
+    record = Record(project=s.project, content=u"{0}将对步骤进行了编辑，"
+                                               u"将\"{1}\"更改为\"{2}\"".format(current_user.name, old_content, s.content))
+    db.session.add(record)
+    db.session.commit()
+    return content, 200
+
+
+@main.route('/add_step/<project_id>', methods=['POST'])
+def add_step(project_id):
+    p = Project.query.get_or_404(project_id)
+    s = Step(content=request.form.get('content'))
+    db.session.add(s)
+    p.steps.append(s)
+    length = str(len(p.steps.all()))
+    db.session.add(p)
+    record = Record(project=p, content=u"{0}将添加了步骤\"{1}\"".format(current_user.name, s.content))
+    db.session.add(record)
+    db.session.commit()
+    ret = u' <div class="form-group" id="step'+length+u'"><label for="inputStep1">步骤'+length+\
+          u'</label><p><input type="text" style="display: inline;width: 93%" ' \
+          u'class="form-control" id="'+s.id+u'"  ' \
+          u'value="'+s.content+'" ><a style="display: inline" class="btn btn-danger"' \
+          u'id="/step_remove/'+s.id+u'" >—</a></p></div>'
+    return ret, 200
+
+
+@main.route('/step_remove/<step_id>', methods=['GET'])
+def remove_step(step_id):
+    s = Step.query.get_or_404(step_id)
+    p = s.project
+    p.steps.remove(s)
+    db.session.add(p)
+    s.del_flag = True
+    db.session.add(s)
+    record = Record(project=p, content=u"{0}将删除了步骤\"{1}\"".format(current_user.name, s.content))
+    db.session.add(record)
+    db.session.commit()
+    return '', 200

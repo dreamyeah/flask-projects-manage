@@ -87,7 +87,7 @@
 {% endblock %}
 
 {% block page_content %}
-<div class="container-fluid">
+<div class="container-fluid" style="margin-top: 50px">
   <div class="row">
     <!-- 第一个网格 显示user项目信息 -->
     <div class="col-md-2 col-md-offset-1">
@@ -102,7 +102,7 @@
            </li>
         </ul>
 
-        <div class="list-group">
+        <div class="list-group" style="font-size:16px">
             {% for p in projects %}
                 {% if not p.status %}
                  {% if p == project %}
@@ -126,7 +126,7 @@
            <li role="presentation">
                 <span class="glyphicon glyphicon-ok"></span> 已完成的项目
            </li>
-        </ul>       <div class="list-group">
+        </ul>       <div class="list-group"style="font-size:16px">
             {% for p in projects %}
                 {% if p.status %}
                  {% if p == project %}
@@ -162,13 +162,16 @@
             {% endif %}
       <!-- Default panel contents -->
       <div class="panel-heading " >
-          <h5>{{ project.name }}               <span class="label label-default">id:{{ project.id }}</span>
+          <h6><small>  <span style="float:left;margin-right: 10px" class="label label-default">id:{{ project.id }}  </span></small>
+               <span style="margin-right: 10px"> {{ project.name }} </span>
+              <a href='{{ url_for('.edit', project_id=project.id) }}' style="float:right" type="button" class="btn btn-primary">编辑 </a>
               {% for _ in range(project.priority) %}
               <span class="glyphicon glyphicon-star" style="color: #f1c40f; ">   </span>
               {% endfor %}
-          </h5>
+          </h6>
+
               {% if project.status %}
-                  <p id="project_time" class="text-right">
+                  <p id="project_time" class="text-right" style="margin-top: 30px">
                   项目时间：{{ project.start_time | date_output }} 至 {{ project.finish_at | date_output }}
                   </p>
                   <p id="project_status" class="text-right">
@@ -193,8 +196,7 @@
               {% endif %}
       </div>
 
-        <div class="panel-body">
-          <h6> {{ project.content }}</h6>
+        <div class="panel-body">{{ project.content }}
         </div>
         <div class="progress"  style="margin-top:0px;margin-bottom:20px;">
           <div id="progress-bar" class="progress-bar progress-bar-success" role="progressbar"
@@ -215,15 +217,13 @@
        {% for s in project.steps %}
         <tbody>
           <tr >
-            <td > <h7> {{ s.content }} </h7></td>
+            <td>{{ s.content }}</td>
             <td >
                 {% if  s.status  %}
                     <a class="btn btn-success" role="button" > 已解决 </a>
-                     {% if current_user == project.creator %}
                            <a class="btn btn-inverse" role="button" href="{{ url_for('main.step_status_cancel', sid=s.id) }}">
                                撤销
                            </a>
-                     {% endif %}
                 {% else %}
                     <a class="btn btn-danger" role="button" id="{{ s.id }}"> 待解决 </a>
 
@@ -293,13 +293,12 @@
 
     <!-- 第三个网格 显示项目的成员 -->
     {% if projects != [] %}
-    <div class="col-md-1">
+    <div class="col-md-1" >
         <ul class="list-group">
-        <h6 class="text-center"> <span class="glyphicon glyphicon-user "></span></h6>
-        <li class="list-group-item active text-center "> <span class="glyphicon glyphicon-tag"> </span>
+        <li class="list-group-item active text-center "  >  <span class="login-field-icon fui-user"> </span>
             {{ project.creator.name }}</li>
         {% for u in project.users %}
-            <li class="list-group-item text-center" style="font-size: 16px" >{{ u.name }}</li>
+            <li class="list-group-item text-center" style="font-size: 15px" >{{ u.name }}</li>
         {% endfor %}
         <a id="add_modal" class="list-group-item text-center" style="color: #31b0d5">
         <span class="glyphicon glyphicon-plus-sign"> </span>
@@ -355,7 +354,7 @@
                     <div class="form-group">
                          <label for="inputContent">项目优先级</label>
                          <input id="input-id" type="number" class="rating"
-                                min=0 max=5 step=1 data-size="xs" name="priority">
+                                min=0 max=5 step=1 data-size="xs" name="priority" />
                     </div>
                     <div id="step_groups">
                     <div class="form-group" id="1">

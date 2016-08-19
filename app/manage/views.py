@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from flask import render_template, redirect, request, url_for, flash, current_app
-from flask.ext.login import login_user, logout_user, login_required, current_user
+from flask import render_template, redirect, request, url_for , current_app
+from flask.ext.login import login_required, current_user
 from ..models import Project, User
 from . import manage
 from .. import db
@@ -10,7 +10,7 @@ from .. import db
 @login_required
 def index():
     page = request.args.get('page', 1, type=int)
-    pagination = current_user.projects.order_by(Project.create_at.desc()).paginate(
+    pagination = current_user.projects.filter_by(del_flag=False).order_by(Project.create_at.desc()).paginate(
         page, per_page=current_app.config['TASK_POSTS_PER_PAGE'],
         error_out=False)
     return render_template('manage/manage_project.html', projects=pagination.items, pagination=pagination)
@@ -20,7 +20,8 @@ def index():
 @login_required
 def all_projects():
     page = request.args.get('page', 1, type=int)
-    pagination = Project.query.filter(Project.creator != current_user).order_by(Project.create_at.desc()).paginate(
+    pagination = Project.query.filter(Project.creator != current_user).filter_by(
+        del_flag=False).order_by(Project.create_at.desc()).paginate(
         page, per_page=current_app.config['TASK_POSTS_PER_PAGE'],
         error_out=False)
     other_users = User.query.all()
@@ -28,13 +29,26 @@ def all_projects():
                            other_users=other_users)
 
 
-@manage.route("/delete/<project_id>", methods=['DELETE'])
+@manage.route("/dustbin", methods=['GET'])
+@login_required
+def dustbin():
+    page = request.args.get('page', 1, type=int)
+    pagination = current_user.projects.filter_by(del_flag=True).order_by(Project.create_at.desc()).paginate(
+        page, per_page=current_app.config['TASK_POSTS_PER_PAGE'],
+        error_out=False)
+    other_users = User.query.all()
+    return render_template('manage/manage_dustbin.html', projects=pagination.items, pagination=pagination,
+                           other_users=other_users)
+
+
+@manage.route("/delete/<project_id>", methods=['PUT'])
 @login_required
 def delete_project(project_id):
     p = Project.query.get_or_404(project_id)
-    for s in p.steps:
-        db.session.delete(s)
-    db.session.delete(p)
+    p.del_flag = True
+    # for s in p.steps:
+    #     db.session.delete(s)
+    db.session.add(p)
     db.session.commit()
     return 'ok', 200
 
@@ -79,3 +93,24 @@ def filter_union(info):
     other_users = User.query.all()
     return render_template('manage/filter_union.html', users=users,
                            other_users=other_users)
+
+
+@manage.route("/recover/<project_id>", methods=['PUT'])
+@login_required
+def recover_project(project_id):
+    p = Project.query.get_or_404(project_id)
+    p.del_flag = False
+    db.session.add(p)
+    db.session.commit()
+    return 'ok', 200
+
+
+@manage.route("/indeed_delete/<project_id>", methods=['DELETE'])
+@login_required
+def indeed_delete_project(project_id):
+    p = Project.query.get_or_404(project_id)
+    for s in p.steps:
+        db.session.delete(s)
+    db.session.delete(p)
+    db.session.commit()
+    return 'ok', 200
