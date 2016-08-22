@@ -40,6 +40,23 @@
                             }
                 })
             });
+
+             $("#father").click(function(){
+                $("#father_modal").modal({backdrop: true});
+        });
+
+            $("#father_button").click(function () {
+                $.post("{{ url_for('.edit_father', project_id=project.id) }}",
+                {
+                    father_id:$('#father_input').val()
+                }, function (data,status) {
+                            if(status === 'success'){
+                                $("#father_modal").modal('hide');
+                                $('#father').attr('value', data);
+                            }
+                })
+            });
+
             $("#start_time").click(function(){
                 $("#start_time_modal").modal({backdrop: true});
         });
@@ -54,6 +71,7 @@
                             }
                 })
             });
+
             $("#finish_time").click(function(){
                 $("#finish_time_modal").modal({backdrop: true});
         });
@@ -137,6 +155,53 @@
 
     </script>
 {% endblock %}
+{% block navbar %}
+    <style>
+      body {
+          padding-bottom: 10px;
+          padding-top: 10px;
+      }
+      .navbar {
+          margin-bottom: 10px;
+      }
+    </style>
+    <!-- Static navbar -->
+      <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-5">
+            <span class="sr-only">Toggle navigation</span>
+          </button>
+          <a class="navbar-brand" href="{{ url_for('main.index') }}">Project Manage</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="navbar-collapse-5">
+          <ul class="nav navbar-nav">
+              <li><a href="#">hello, {{ current_user.name }}</a></li>
+              <li><a href="{{ url_for('main.index') }}"> 主页 </a></li>
+            <li><a href="{{ url_for('manage.index') }}"> 管理 </a></li>
+           </ul>
+
+          <ul class="nav navbar-nav navbar-right">
+              {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('auth.logout') }}">登出</a></li>
+                {% else %}
+                <li><a href="{{ url_for('auth.login') }}">登陆</a></li>
+                <li><a href="{{ url_for('auth.register') }}">注册</a></li>
+                {% endif %}
+            <li class="dropdown" style="margin-right:20px">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="fui-gear" ></span> <b class="caret">   </b></a>
+              <ul class="dropdown-menu">
+                <li><a href="{{ url_for('auth.edit_profile') }}">修改资料</a></li>
+                <li><a href="{{ url_for('auth.change_passwd') }}">修改密码</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </nav>
+
+{% endblock %}
 {% block page_content %}
 
 <div class="container">
@@ -156,6 +221,11 @@
                 <textarea  type="text" class="form-control"  rows="3"
                            id="content" name="content" >{{ project.content }}</textarea>
             </div>
+             <div class="form-group" >
+                 <label >父项目</label>
+                 <input type="text" class="form-control" id="father"
+                       name="name" value="{% if project.father %}{{ project.father.name }}{%else%} None {%endif%}"/>
+             </div>
             <div class="form-group">
                 <label for="date">项目起始时间</label>
                 <input type="text" class="form-control"  id="start_time"
@@ -178,7 +248,8 @@
             {% for i in range(length) %}
                 <div class="form-group" id="step{{ i }}">
                     <label for="inputStep1">步骤{{ i }}</label>
-                    <p><input type="text" style="display: inline;width: 93%" class="form-control" id="{{ project.steps[i].id }}"  value="{{ project.steps[i].content }}" >
+                    <p><input type="text" style="display: inline;width: 93%" class="form-control" id="{{ project.steps[i].id }}"
+                              value="{{ project.steps[i].content }}" >
                     <a style="display: inline" class="btn btn-danger"
                            id="/step_remove/{{ project.steps[i].id }}" >
                             —
@@ -237,7 +308,8 @@
            <div class="modal-body">
                <div class="form-group">
                    <label for="inputContent">项目内容</label>
-                   <input type="text" class="form-control" value="{{ project.content }}" id="content_input" name="content_input" />
+                   <input type="text" class="form-control" value="{{ project.content }}" id="content_input"
+                          name="content_input" />
                </div>
                <div class="modal-footer">
                    <button class="btn btn-primary" id="content_button" >确认修改</button>
@@ -287,7 +359,7 @@
            </div>
            <div class="modal-body">
                <div class="form-group">
-                   <label for="inputContent">项目结束日期</label>
+                   <label for="finish_time_input">项目结束日期</label>
                    <input type="text" class="form-control" value="{{ project.excepted_finish_at }}" id="finish_time_input" name="finish_time_input" />
                </div>
                <div class="modal-footer">
@@ -313,7 +385,7 @@
            </div>
            <div class="modal-body">
                <div class="form-group">
-                   <label for="inputContent">项目优先级</label>
+                   <label for="priority_input">项目优先级</label>
                    <input  type="number" class="rating"
                                 min=0 max=5 step=1 data-size="xs" id="priority_input" name="priority"/>
                </div>
@@ -341,8 +413,9 @@
            </div>
            <div class="modal-body">
                <div class="form-group">
-                   <label for="inputContent">步骤{{ i }}</label>
-                   <input type="text" class="form-control" id="step_input{{ project.steps[i].id }}" value="{{ project.steps[i].content }}">
+                   <label >步骤{{ i }}</label>
+                   <input type="text" class="form-control" id="step_input{{ project.steps[i].id }}"
+                          value="{{ project.steps[i].content }}">
                </div>
                <div class="modal-footer">
                    <button class="btn btn-primary" id="step_button{{ project.steps[i].id  }}" >确认修改</button>
@@ -368,11 +441,46 @@
            </div>
            <div class="modal-body">
                <div class="form-group">
-                   <label for="inputContent">新步骤</label>
+                   <label for="add_step_input">新步骤</label>
                    <input type="text" class="form-control" id="add_step_input" >
                </div>
                <div class="modal-footer">
                    <button class="btn btn-primary" id="add_step_button">确认修改</button>
+               </div>
+           </div>
+       </div><!-- /.modal-content -->
+   </div><!-- /.modal -->
+</div>
+    <!-- 模拟框结束 -->
+
+<!-- 添加福项目模拟框 -->
+<div class="modal fade" id="father_modal" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-header"  style="background-color: rgba(19, 19, 19, 0.77)">
+               <button type="button" class="close"
+                       data-dismiss="modal" aria-hidden="true">&times;
+               </button>
+               <h6 class="modal-title" id="myModalLabel" style="color: #ffffff">
+                  更改父项目
+               </h6>
+           </div>
+           <div class="modal-body">
+               <div class="form-group">
+                   <label for="father_input">父项目</label>
+                   <select data-toggle="select" class="form-control select select-inverse mrs mbm"
+                           id="father_input" name="father">
+                            <option value="None"> None </option>
+                            {% for ap in all_projects%}
+                                {% if ap != project and ap not in project.children %}
+                            <option value="{{ ap.id }}">{{ ap.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                   </select>
+               </div>
+               <div class="modal-footer">
+                   <button class="btn btn-primary" id="father_button">确认修改</button>
                </div>
            </div>
        </div><!-- /.modal-content -->

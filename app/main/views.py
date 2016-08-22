@@ -33,9 +33,10 @@ def index():
         # finish_steps_length = float(len(list(finish_steps)))
         steps_length = float(len(list(p[0].steps)))
         progress = finish_steps_length / steps_length * 100
+        all_projects = Project.query.all()
         remained_days = p[0].expected_finish_at - datetime.now()
         other_users = db.session.query(User).filter(User.id.notin_([u.id for u in p[0].users])).all()
-        return render_template('project.html', project=p[0], projects=p,
+        return render_template('project.html', project=p[0], projects=p, all_projects=all_projects,
                                progress=progress, finish_steps_length=finish_steps_length,
                                steps_length=steps_length, remained_days=remained_days,
                                other_users=other_users, commits=p[0].commits,
@@ -57,12 +58,13 @@ def project(project_id):
     remained_days = p.expected_finish_at - datetime.now()
     other_users = db.session.query(User).filter(User.id.notin_([u.id for u in p.users])).all()
     # print [u.id for u in p.users], [u.id for u in other_users]
+    all_projects = Project.query.all()
     if current_user.admin:
         projects = Project.query.filter_by(del_flag=False).order_by(Project.priority.desc()).all()
     else:
         projects = current_user.projects.filter_by(del_flag=False).order_by(Project.priority.desc()).all()
-    return render_template('project.html', project=p, projects=projects,
-                           progress=progress, finish_steps_length=finish_steps_length,
+    return render_template('project.html', project=p, projects=projects, progress=progress,
+                           all_projects=all_projects, finish_steps_length=finish_steps_length,
                            steps_length=steps_length, remained_days=remained_days,
                            other_users=other_users, commits=p.commits, color=color)
 
@@ -103,6 +105,7 @@ def finish_step(id):
 @main.route('/create_project', methods=['POST'])
 @login_required
 def create_project():
+    print request.form
     project_name = request.form.get('name')
     project_content = request.form.get('content')
     time = request.form.get('start_time')
@@ -111,10 +114,16 @@ def create_project():
     finish_time = datetime.strptime(time, '%m/%d/%Y')
     priority = int(request.form.get('priority'))
     steps = []
-    for i in range(1, len(request.form) - 4):
+    for i in range(1, len(request.form) - 5):
         steps.append(request.form.get('step' + str(i)))
-    p = Project(name=project_name, content=project_content, create_id=current_user.id,
-                start_time=start_time, expected_finish_at=finish_time, priority=priority)
+    if request.form.get('father') != u'None':
+        father = Project.query.get_or_404(request.form.get('father'))
+        p = Project(name=project_name, content=project_content, create_id=current_user.id,
+                    father=father,start_time=start_time, expected_finish_at=finish_time,
+                    priority=priority)
+    else:
+        p = Project(name=project_name, content=project_content, create_id=current_user.id,
+                    start_time=start_time, expected_finish_at=finish_time, priority=priority)
     db.session.add(p)
     db.session.commit()
     user = current_user._get_current_object()
@@ -185,6 +194,7 @@ def remove_user(project_id):
 
 
 @main.route('/project/git/commit/<p_id>', methods=['POST'])
+@login_required
 def git_commit(p_id):
     p = Project.query.get_or_404(p_id)
     data = json.loads(unicode(request.data))
@@ -199,12 +209,15 @@ def git_commit(p_id):
 
 
 @main.route('/edit/<project_id>', methods=['GET'])
+@login_required
 def edit(project_id):
     p = Project.query.get_or_404(project_id)
-    return render_template('edit.html', project=p, length=len(p.steps.all()))
+    all_projects = Project.query.all()
+    return render_template('edit.html', project=p, all_projects=all_projects, length=len(p.steps.all()))
 
 
 @main.route('/edit_name/<project_id>', methods=['POST'])
+@login_required
 def edit_name(project_id):
     p = Project.query.get_or_404(project_id)
     old_name = p.name
@@ -331,3 +344,23 @@ def remove_step(step_id):
     db.session.add(record)
     db.session.commit()
     return '', 200
+
+
+@main.route('/change_father_project/<project_id>', methods=['POST'])
+def edit_father(project_id):
+    father_id = request.form.get('father_id')
+    p = Project.query.get_or_404(project_id)
+    if father_id == 'None':
+        p.father = None
+        ret = 'None'
+    else:
+        f = Project.query.get_or_404(father_id)
+        p.father = f
+        ret = f.name
+    db.session.add(p)
+    record = Record(project=p, content=u"{0}将父项目转为\"{1}\"".format(current_user.name, ret))
+    db.session.add(record)
+    db.session.commit()
+    return ret, 200
+
+

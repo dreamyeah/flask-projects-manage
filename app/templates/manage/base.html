@@ -44,10 +44,9 @@
         <div class="collapse navbar-collapse" id="navbar-collapse-5">
           <ul class="nav navbar-nav">
               <li><a href="#">hello, {{ current_user.name }}</a></li>
-              <li class="active"><a href="{{ url_for('main.index') }}"> 主页 </a></li>
-              <li><a href="{{ url_for('manage.index') }}"> 管理 </a></li>
+              <li><a href="{{ url_for('main.index') }}"> 主页 </a></li>
+              <li class="active"><a href="{{ url_for('manage.index') }}"> 管理 </a></li>
               <li><a href="{{ url_for('tree.index') }}"> 项目树 </a></li>
-
            </ul>
 
           <ul class="nav navbar-nav navbar-right">
@@ -71,7 +70,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top:40px;margin-bottom:0px;">
+<div class="container" style="margin-top:30px;margin-bottom:40px;">
     {% for message in get_flashed_messages() %}
     <div class="alert alert-warning">
         <button type="button" class="close" data-dismiss="alert">&times;</button>

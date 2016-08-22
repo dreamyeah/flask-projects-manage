@@ -20,7 +20,7 @@ class RegisterForm(Form):
     username = StringField(u'用户名', validators=[
                           Required(), Length(1, 64)])
     password = PasswordField(u'输入密码', validators=[
-                          Required(), EqualTo('password2', message='Passwords must match.')])
+                          Required(), EqualTo('password2', message=u'两次输入密码不一致')])
     password2 = PasswordField(u'重复密码', validators=[Required()])
     submit = SubmitField(u'注册')
 
@@ -31,8 +31,7 @@ class RegisterForm(Form):
 
 class EditForm(Form):
     uid = StringField(u'工号', validators=[Required(), Length(1, 10)])
-    username = StringField(u'用户名', validators=[
-        Required(), Length(1, 64)])
+    username = StringField(u'用户名', validators=[Required(message=u'用户名不能为空'), Length(1, 64)])
     submit = SubmitField(u'确认修改')
 
     def validate_username(self, field):
@@ -41,16 +40,16 @@ class EditForm(Form):
 
 
 class ChangePasswdForm(Form):
-    old_password = PasswordField(u'请输入密码', validators=[Required()])
+    old_password = PasswordField(u'请输入原来密码', validators=[Required(message=u'请输入旧密码')])
     password = PasswordField(u'请输入新密码', validators=[
-        Required(), EqualTo(u'password2', message='两次输入密码不一致')])
-    password2 = PasswordField(u'重复新密码', validators=[Required()])
+        Required(message=u'请输入新密码'), EqualTo(u'password2', message=u'两次输入密码不一致')])
+    password2 = PasswordField(u'重复新密码', validators=[Required(message=u'请再次输入新密码')])
     submit = SubmitField(u'确认修改')
 
 
 class ResetPassForm(Form):
     password = PasswordField(u'请输入新密码', validators=[
-        Required(), EqualTo(u'password2', message='两次输入密码不一致')])
+        Required(), EqualTo(u'password2', message=u'两次输入密码不一致')])
     password2 = PasswordField(u'重复新密码', validators=[Required()])
     submit = SubmitField(u'确认修改')
 

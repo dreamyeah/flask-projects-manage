@@ -40,9 +40,9 @@ def register():
     return render_template('auth/register.html', form=form)
 
 
-@auth.route('/edit', methods=['POST', 'GET'])
+@auth.route('/edit_profile', methods=['POST', 'GET'])
 @login_required
-def edit():
+def edit_profile():
     form = EditForm()
     if form.validate_on_submit():
         user = current_user._get_current_object()
@@ -50,10 +50,10 @@ def edit():
         db.session.add(user)
         db.session.commit()
         flash(u'用户名修改成功')
-        return redirect(url_for('.edit'))
+        return redirect(url_for('main.index'))
     form.uid.data = current_user.id
     form.username.data = current_user.name
-    return render_template('auth/edit.html', form=form)
+    return render_template('auth/edit_profile.html', form=form)
 
 
 @auth.route('/changepasswd', methods=['POST', 'GET'])
@@ -61,12 +61,13 @@ def change_passwd():
     form = ChangePasswdForm()
     if form.validate_on_submit():
         if current_user.verify_password(form.old_password.data):
-            current_user.password = form.password.data
-            db.session.add(current_user)
+            user = current_user._get_current_object()
+            user.password = form.password.data
+            db.session.add(user)
             db.session.commit()
             return redirect(url_for('auth.login'))
         else:
-            flash('输入密码错误')
+            flash(u'密码错误')
     return render_template('auth/change_passwd.html', form=form)
 
 

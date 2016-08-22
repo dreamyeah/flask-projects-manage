@@ -11,14 +11,85 @@
     <script src="{{ url_for('static', filename='js/star-rating.js') }}"></script>
 <style type="text/css">
 .bignumber {font-size:40px;}
+.tree {
+    min-height:20px;
+    padding:19px;
+    margin-bottom:20px;
+    background-color:#fbfbfb;
+    border:1px solid #999;
+    -webkit-border-radius:4px;
+    -moz-border-radius:4px;
+    border-radius:4px;
+    -webkit-box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    -moz-box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05)
+}
+.tree li {
+    list-style-type:none;
+    margin:0;
+    padding:10px 5px 0 5px;
+    position:relative
+}
+.tree li::before, .tree li::after {
+    content:'';
+    left:-20px;
+    position:absolute;
+    right:auto
+}
+.tree li::before {
+    border-left:1px solid #999;
+    bottom:50px;
+    height:100%;
+    top:0;
+    width:1px
+}
+.tree li::after {
+    border-top:1px solid #999;
+    height:20px;
+    top:25px;
+    width:25px
+}
+.tree li span {
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border:1px solid #999;
+    border-radius:5px;
+    display:inline-block;
+    padding:3px 8px;
+    text-decoration:none
+}
+.tree li.parent_li>span {
+    cursor:pointer
+}
+.tree>ul>li::before, .tree>ul>li::after {
+    border:0
+}
+.tree li:last-child::before {
+    height:25px
+}
+.tree li.parent_li>span:hover, .tree li.parent_li>span:hover+ul li span {
+    background:#eee;
+    border:1px solid #94a0b4;
+    color:#000
+}
 </style>
 <script type="text/javascript">
-      var xmlhttp;
-      var finish_steps_length = {{ finish_steps_length }};
-      var steps_length = {{ steps_length }};
-      //以下是jquery 完成步骤函数
+    var xmlhttp;
+    var finish_steps_length = {{ finish_steps_length }};
+    var steps_length = {{ steps_length }};
+    function tree_function()
+    {
+        $.get('{{ url_for('tree.get_tree', project_id = project.id ) }}', function (data, status) {
+            if(status ==='success'){
+                $('#tree').html(data);
+                $("#tree_modal").modal({backdrop: true});
+            }
 
+        });
+    }
+    //以下是jquery 完成步骤函数
     $(document).ready(function(){
+
         $("#input-id").rating();
         $("#commit_history_form").hide();
         $("#create_modal").click(function(){
@@ -98,7 +169,7 @@
     {% else %}
         <ul class="nav nav-tabs" style="margin-bottom: 10px;margin-top: 20px">
            <li role="presentation">
-                <span class="glyphicon glyphicon-th-large"></span> 我参与的项目
+                <span class="glyphicon glyphicon-list-alt"></span> 我参与的项目
            </li>
         </ul>
 
@@ -165,6 +236,7 @@
           <h6><small>  <span style="float:left;margin-right: 10px" class="label label-default">id:{{ project.id }}  </span></small>
                <span style="margin-right: 10px"> {{ project.name }} </span>
               <a href='{{ url_for('.edit', project_id=project.id) }}' style="float:right" type="button" class="btn btn-primary">编辑 </a>
+              <button style="float:right;margin-right: 10px" onclick="tree_function()" class="btn btn-inverse"> 关系树  </button>
               {% for _ in range(project.priority) %}
               <span class="glyphicon glyphicon-star" style="color: #f1c40f; ">   </span>
               {% endfor %}
@@ -335,30 +407,39 @@
          <div class="modal-body">
                     <form id="createProject" name="createProject"  method="POST" role="form" action=/create_project>
                     <div class="form-group">
-                        <label for="inputName">项目名称</label>
+                        <label for="name">项目名称</label>
                         <input type="text" class="form-control" id="name" name="name">
                     </div>
                     <div class="form-group">
-                         <label for="inputContent">项目内容</label>
+                         <label for="content">项目内容</label>
                          <textarea  type="text" class="form-control"  rows="3" id="content" name="content"></textarea>
                     </div>
-
+                    <div class="form-group ">
+                        <label >父项目</label>
+                        <select data-toggle="select" class="form-control select select-inverse mrs mbm" name="father">
+                            <option value="None"> None </option>
+                            {% for ap in all_projects%}
+                                <option value="{{ ap.id }}">{{ ap.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     <div class="form-group">
-                        <label for="date">项目起始时间</label>
+                        <label for="datepicker1">项目起始时间</label>
                         <input type="text" class="form-control"  id="datepicker1" name="start_time">
                     </div>
                     <div class="form-group">
-                        <label for="date">预期完成时间</label>
+                        <label for="datepicker2">预期完成时间</label>
                         <input type="text" class="form-control"  id="datepicker2" name="finish_time">
                     </div>
                     <div class="form-group">
-                         <label for="inputContent">项目优先级</label>
+                         <label for="input-id">项目优先级</label>
                          <input id="input-id" type="number" class="rating"
                                 min=0 max=5 step=1 data-size="xs" name="priority" />
                     </div>
+
                     <div id="step_groups">
                     <div class="form-group" id="1">
-                        <label for="inputStep1">步骤1(必需)</label>
+                        <label for="step1">步骤1(必需)</label>
                         <input type="text" class="form-control" id="step1" name="step1">
                     </div>
                     </div>
@@ -478,6 +559,32 @@
 </div><!-- /.modal -->
 </div>
    <!-- /.添加成员项目框结束 -->
+
+
+<!-- 模态框6（Modal）项目树 -->
+<div class="modal fade" id="tree_modal" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close"
+               data-dismiss="modal" aria-hidden="true">
+                  &times;
+            </button>
+            <h6 class="modal-title" id="myModalLabel">
+                树形关系图
+            </h6>
+         </div>
+         <div class="modal-body">
+             <div class="tree well" id="tree">
+
+             </div>
+         </div>
+      </div><!-- /.modal-content -->
+</div><!-- /.modal -->
+</div>
+   <!-- /.项目数项目框结束 -->
+
 
 <script>
 //创建project模拟框的两个时间选择器触发函数

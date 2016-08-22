@@ -40,6 +40,8 @@ class Project(db.Model):
     priority = db.Column(db.Integer, default=0)
     records = db.relationship('Record', backref='project', lazy='dynamic')
     del_flag = db.Column(db.Boolean, default=False)
+    father_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+    father = db.relationship('Project', backref='children', remote_side=[id])
 
     def __repr__(self):
         return '<Name {}>'.format(self.id)
