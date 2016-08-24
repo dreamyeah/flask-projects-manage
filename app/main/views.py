@@ -28,7 +28,7 @@ def index():
                                progress=progress, finish_steps_length=finish_steps_length,
                                steps_length=steps_length, remained_days=None, other_users=[])
     else:
-        color = ['info', 'info', 'info', 'warning', 'warning', 'warning']
+        color = ['info', 'info', 'info', 'warning', 'warning', 'danger']
         finish_steps_length = float(Step.query.filter_by(project_id=p[0].id, status=1).count())
         # finish_steps_length = float(len(list(finish_steps)))
         steps_length = float(len(list(p[0].steps)))
@@ -108,22 +108,26 @@ def create_project():
     print request.form
     project_name = request.form.get('name')
     project_content = request.form.get('content')
+    git_name = request.form.get('git_name').strip()
+    if git_name:
+        git_name += u'.git'
     time = request.form.get('start_time')
     start_time = datetime.strptime(time, '%m/%d/%Y')
     time = request.form.get('finish_time')
     finish_time = datetime.strptime(time, '%m/%d/%Y')
     priority = int(request.form.get('priority'))
     steps = []
-    for i in range(1, len(request.form) - 5):
+    for i in range(1, len(request.form) - 6):
         steps.append(request.form.get('step' + str(i)))
     if request.form.get('father') != u'None':
         father = Project.query.get_or_404(request.form.get('father'))
         p = Project(name=project_name, content=project_content, create_id=current_user.id,
-                    father=father,start_time=start_time, expected_finish_at=finish_time,
-                    priority=priority)
+                    father=father, start_time=start_time, expected_finish_at=finish_time,
+                    git_name=git_name, priority=priority)
     else:
         p = Project(name=project_name, content=project_content, create_id=current_user.id,
-                    start_time=start_time, expected_finish_at=finish_time, priority=priority)
+                    start_time=start_time, expected_finish_at=finish_time, priority=priority,
+                    git_name=git_name)
     db.session.add(p)
     db.session.commit()
     user = current_user._get_current_object()
@@ -194,7 +198,6 @@ def remove_user(project_id):
 
 
 @main.route('/project/git/commit/<p_id>', methods=['POST'])
-@login_required
 def git_commit(p_id):
     p = Project.query.get_or_404(p_id)
     data = json.loads(unicode(request.data))
@@ -232,6 +235,7 @@ def edit_name(project_id):
 
 
 @main.route('/edit_content/<project_id>', methods=['POST'])
+@login_required
 def edit_content(project_id):
     p = Project.query.get_or_404(project_id)
     old_content = p.content
@@ -246,6 +250,7 @@ def edit_content(project_id):
 
 
 @main.route('/edit_start_time/<project_id>', methods=['POST'])
+@login_required
 def edit_start_time(project_id):
     p = Project.query.get_or_404(project_id)
     old_time = p.start_time
@@ -264,6 +269,7 @@ def edit_start_time(project_id):
 
 
 @main.route('/edit_end_time/<project_id>', methods=['POST'])
+@login_required
 def edit_end_time(project_id):
     p = Project.query.get_or_404(project_id)
     old_time = p.expected_finish_at
@@ -282,14 +288,16 @@ def edit_end_time(project_id):
 
 
 @main.route('/edit_priority/<project_id>', methods=['POST'])
+@login_required
 def edit_priority(project_id):
     p = Project.query.get_or_404(project_id)
     old_priority = p.priority
     priority = int(request.form.get('priority'))
     p.priority = priority
     db.session.add(p)
-    record = Record(project=p, content=u"{0}将对优先级进行了编辑，"
-                                       u"优先级从\"{1}\"更改为\"{2}\"".format(current_user.name, old_priority, priority))
+    record = Record(project=p, content=u'{0}将对优先级进行了编辑，'
+                                       u'优先级从“{1}”更改为“{2}”'.format(current_user.name,
+                                                                   old_priority, priority))
     db.session.add(record)
     db.session.commit()
     ret = ''
@@ -300,6 +308,7 @@ def edit_priority(project_id):
 
 
 @main.route('/edit_step/<step_id>', methods=['POST'])
+@login_required
 def edit_step(step_id):
     s = Step.query.get_or_404(step_id)
     old_content = s.content
@@ -314,6 +323,7 @@ def edit_step(step_id):
 
 
 @main.route('/add_step/<project_id>', methods=['POST'])
+@login_required
 def add_step(project_id):
     p = Project.query.get_or_404(project_id)
     s = Step(content=request.form.get('content'))
@@ -324,15 +334,16 @@ def add_step(project_id):
     record = Record(project=p, content=u"{0}将添加了步骤\"{1}\"".format(current_user.name, s.content))
     db.session.add(record)
     db.session.commit()
-    ret = u' <div class="form-group" id="step'+length+u'"><label for="inputStep1">步骤'+length+\
+    ret = u' <div class="form-group" id="step' + length + u'"><label for="inputStep1">步骤' + length +\
           u'</label><p><input type="text" style="display: inline;width: 93%" ' \
-          u'class="form-control" id="'+s.id+u'"  ' \
-          u'value="'+s.content+'" ><a style="display: inline" class="btn btn-danger"' \
-          u'id="/step_remove/'+s.id+u'" >—</a></p></div>'
+          u'class="form-control" id="' + s.id + u'"  ' \
+          u'value="' + s.content + '" ><a style="display: inline" class="btn btn-danger"' \
+          u'id="/step_remove/' + s.id+u'" >—</a></p></div>'
     return ret, 200
 
 
 @main.route('/step_remove/<step_id>', methods=['GET'])
+@login_required
 def remove_step(step_id):
     s = Step.query.get_or_404(step_id)
     p = s.project
@@ -347,6 +358,7 @@ def remove_step(step_id):
 
 
 @main.route('/change_father_project/<project_id>', methods=['POST'])
+@login_required
 def edit_father(project_id):
     father_id = request.form.get('father_id')
     p = Project.query.get_or_404(project_id)
@@ -364,3 +376,33 @@ def edit_father(project_id):
     return ret, 200
 
 
+@main.route('/edit_git/<project_id>', methods=['POST'])
+@login_required
+def edit_git(project_id):
+    p = Project.query.get_or_404(project_id)
+    old_name = p.git_name
+    git_name = request.form.get('git_name').strip()
+    if git_name:
+        git_name += u'.git'
+    p.git_name = git_name
+    db.session.add(p)
+    record = Record(project=p, content=u"{0}将对git进行了编辑，"
+                                       u"从\"{1}\"更改为\"{2}\"".format(current_user.name, old_name, git_name))
+    db.session.add(record)
+    db.session.commit()
+    return git_name, 200
+
+
+@main.route('/bug_locat', methods=['POST'])
+def bug_locat():
+    data = json.loads(unicode(request.data))
+    time = data['time']
+    content = data['content']
+    type_ = data['type']
+    province = data['province']
+    print time, content, type_, province
+    # record = Record(project=p, content=u"git账户{0}<{1}>提交了一次commit，备注是:\"{2}\"".format(data['name'],
+    #                                                                                 data['email'], data['message']))
+    # db.session.add(record)
+    # db.session.commit()
+    return 'ok', 200

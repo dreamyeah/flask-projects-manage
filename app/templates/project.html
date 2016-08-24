@@ -72,6 +72,11 @@
     border:1px solid #94a0b4;
     color:#000
 }
+#head p {
+    text-align: right;
+}
+
+
 </style>
 <script type="text/javascript">
     var xmlhttp;
@@ -89,7 +94,7 @@
     }
     //以下是jquery 完成步骤函数
     $(document).ready(function(){
-
+        $('#git_input').hide();
         $("#input-id").rating();
         $("#commit_history_form").hide();
         $("#create_modal").click(function(){
@@ -232,7 +237,7 @@
                 <div class="panel panel-danger">
             {% endif %}
       <!-- Default panel contents -->
-      <div class="panel-heading " >
+      <div class="panel-heading " id="head">
           <h6><small>  <span style="float:left;margin-right: 10px" class="label label-default">id:{{ project.id }}  </span></small>
                <span style="margin-right: 10px"> {{ project.name }} </span>
               <a href='{{ url_for('.edit', project_id=project.id) }}' style="float:right" type="button" class="btn btn-primary">编辑 </a>
@@ -241,27 +246,28 @@
               <span class="glyphicon glyphicon-star" style="color: #f1c40f; ">   </span>
               {% endfor %}
           </h6>
-
+              <p style="margin-top: 30px"><span style="font-size: 20px;" class="tag label label-info">
+                  git: {{ project.git_name }}</span></p>
               {% if project.status %}
-                  <p id="project_time" class="text-right" style="margin-top: 30px">
+                  <p id="project_time">
                   项目时间：{{ project.start_time | date_output }} 至 {{ project.finish_at | date_output }}
                   </p>
-                  <p id="project_status" class="text-right">
+                  <p id="project_status">
                   <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span> 项目已完成
-                  </h6>
+                  </p>
               {% elif (remained_days | days_output) >= 0  %}
-                  <p id="project_time" class="text-right">
+                  <p id="project_time">
                   项目时间：{{ project.start_time | date_output }} 至 {{ project.expected_finish_at | date_output }}
                   </p>
-                  <p id="project_status" class="text-right">
+                  <p id="project_status">
                   <span class="glyphicon glyphicon-time" aria-hidden="true"> </span> 剩下
                       <span class="bignumber">{{ remained_days | days_output }}</span>天
                   </p>
               {% else %}
-                  <p id="project_time" class="text-right">
+                  <p id="project_time">
                   项目时间：{{ project.start_time | date_output }} 至 {{ project.expected_finish_at | date_output }}
                   </p>
-                  <p id="project_status" class="text-right">
+                  <p id="project_status">
                   <span class="glyphicon glyphicon-time" aria-hidden="true"> </span> 项目超期
                       <span class="bignumber">{{ remained_days | days_output | negate }}</span> 天
                   </p>
@@ -422,6 +428,12 @@
                                 <option value="{{ ap.id }}">{{ ap.name }}</option>
                             {% endfor %}
                         </select>
+                    </div>
+                    <div class="form-group " id="git_input">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="git_name" name="git_name">
+                            <span class="input-group-addon">.git</span>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="datepicker1">项目起始时间</label>

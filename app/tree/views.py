@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import render_template
+from flask import render_template, Markup
 from flask.ext.login import login_required
 from ..models import Project
 from . import tree
@@ -32,7 +32,7 @@ def index():
         ret = show_children(p, ret)
         ret += u'</ul>'
         all_ret += ret
-    return render_template('tree/tree.html', ret=all_ret)
+    return render_template('tree/tree.html', ret=Markup(all_ret))
 
 
 @tree.route('/<project_id>', methods=['GET'])

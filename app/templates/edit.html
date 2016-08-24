@@ -56,7 +56,20 @@
                             }
                 })
             });
-
+            $("#git_input").click(function(){
+                $("#git_modal").modal({backdrop: true});
+        });
+            $("#git_button").click(function () {
+                $.post("{{ url_for('.edit_git', project_id=project.id) }}",
+                {
+                    git_name:$('#git_name').val()
+                }, function (data,status) {
+                            if(status === 'success'){
+                                $("#git_modal").modal('hide');
+                                $('#git_input').attr('value', data);
+                            }
+                })
+            });
             $("#start_time").click(function(){
                 $("#start_time_modal").modal({backdrop: true});
         });
@@ -164,6 +177,21 @@
       .navbar {
           margin-bottom: 10px;
       }
+      .inputStars{
+          border: 2px solid #bdc3c7;
+          color: #34495e;
+          font-family: Lato, Helvetica, Arial, sans-serif;
+          font-size: 15px;
+          line-height: 1.467;
+          padding: 8px 12px;
+          height: 42px;
+          border-radius: 6px;
+          box-shadow: none;"
+      }
+    .form-control:hover, .inputStars:hover{
+        border-color: #2ecc71;
+    }
+
     </style>
     <!-- Static navbar -->
       <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -180,7 +208,9 @@
           <ul class="nav navbar-nav">
               <li><a href="#">hello, {{ current_user.name }}</a></li>
               <li><a href="{{ url_for('main.index') }}"> 主页 </a></li>
-            <li><a href="{{ url_for('manage.index') }}"> 管理 </a></li>
+              <li><a href="{{ url_for('manage.index') }}"> 管理 </a></li>
+              <li><a href="{{ url_for('tree.index') }}"> 项目树 </a></li>
+
            </ul>
 
           <ul class="nav navbar-nav navbar-right">
@@ -205,6 +235,9 @@
 {% block page_content %}
 
 <div class="container">
+<div class="page-header" style="margin-top: 30px">
+    <h4 >编辑项目信息</h4>
+</div>
     <div class="row">
         <div class="col-md-8">
         <!-- 警告框预留位置 -->
@@ -226,6 +259,11 @@
                  <input type="text" class="form-control" id="father"
                        name="name" value="{% if project.father %}{{ project.father.name }}{%else%} None {%endif%}"/>
              </div>
+            <div class="form-group" >
+                 <label >git</label>
+                 <input type="text" class="form-control" id="git_input"
+                       name="git_input" value="{{ project.git_name }}"/>
+            </div>
             <div class="form-group">
                 <label for="date">项目起始时间</label>
                 <input type="text" class="form-control"  id="start_time"
@@ -238,7 +276,7 @@
             </div>
             <div class="form-group" id="priority">
                 <label for="inputContent">项目优先级</label>
-                <div id="priority_stars">
+                <div id="priority_stars" class="inputStars"  >
                 {% for _ in range(project.priority) %}
                        <span class="glyphicon glyphicon-star" style="color: #f1c40f; "></span>
                 {% endfor %}
@@ -318,6 +356,33 @@
        </div><!-- /.modal-content -->
    </div><!-- /.modal -->
 </div>
+
+        <!-- 改git名字模拟框 -->
+<div class="modal fade" id="git_modal" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-header" style="background-color: rgba(19, 19, 19, 0.77)">
+               <button type="button" class="close"
+                       data-dismiss="modal" aria-hidden="true">&times;
+               </button>
+               <h6 class="modal-title" id="myModalLabel" style="color: #ffffff">
+                   修改git名
+               </h6>
+           </div>
+           <div class="modal-body">
+               <div class="input-group">
+                   <input type="text" class="form-control" id="git_name" name="git_name">
+                   <span class="input-group-addon">.git</span>
+               </div>
+               <div class="modal-footer">
+                   <button class="btn btn-primary" id="git_button" >确认修改</button>
+               </div>
+           </div>
+       </div><!-- /.modal-content -->
+   </div><!-- /.modal -->
+</div>
+
     <!-- 改开始日期模拟框 -->
 <div class="modal fade" id="start_time_modal" tabindex="-1" role="dialog"
    aria-labelledby="myModalLabel" aria-hidden="true">

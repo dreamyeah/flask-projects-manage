@@ -42,6 +42,7 @@ class Project(db.Model):
     del_flag = db.Column(db.Boolean, default=False)
     father_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     father = db.relationship('Project', backref='children', remote_side=[id])
+    git_name = db.Column(db.String(40), nullable=True)
 
     def __repr__(self):
         return '<Name {}>'.format(self.id)
