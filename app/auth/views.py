@@ -5,6 +5,7 @@ from . import auth
 from ..models import User
 from .forms import RegisterForm, EditForm, ChangePasswdForm
 from .. import db
+from .. import cache
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -57,6 +58,7 @@ def edit_profile():
 
 
 @auth.route('/changepasswd', methods=['POST', 'GET'])
+@login_required
 def change_passwd():
     form = ChangePasswdForm()
     if form.validate_on_submit():

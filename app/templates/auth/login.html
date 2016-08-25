@@ -13,6 +13,7 @@ style=""{% endblock %}
       <div class="login">
         <div class="login-screen">
           <div class="login-icon">
+              <img src="{{ url_for('static', filename='img/pm3.png') }}" style="width:150%;"/>
             <img src="{{ url_for('static', filename='img/login/Clipboard.png') }}" />
           </div>
          <form name="login_form" action="{{ url_for('auth.login') }}" method="post">

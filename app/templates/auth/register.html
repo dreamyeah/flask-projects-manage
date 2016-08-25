@@ -5,12 +5,30 @@
 {% block body_attribs %}
 {% endblock %}
 {% block page_content %}
-<div class="container">
-<div class="page-header">
-    <h4 >用户注册</h4>
-</div>
-<div class="col-md-4" >
+<style>
+    div.login-form {
+        -moz-box-shadow: 5px 5px 5px #888888; /* 老的 Firefox */
+        box-shadow: 5px 5px 5px #888888;
+        top: 80px;
+        background-color: #f1f3f5;
+        border-radius: 10px;
+    }
+     img {
+         width: 12%;
+         margin-right: 5%;
+     }
+</style>
+<div class="container" >
+<div class="col-md-5 col-md-offset-3">
+    <div class="login-form">
+            <h4 style="margin-top: 0px" ><img src="{{ url_for('static', filename='img/icons/png/Pensils.png') }}" />用户注册</h4>
     {{ wtf.quick_form(form) }}
+        </div>
 </div>
 </div>
+<script>
+    $(document).ready(function(){
+        $("#submit").attr('class', 'btn btn-primary btn-lg btn-block');
+    });
+</script>
 {% endblock %}

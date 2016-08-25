@@ -25,6 +25,8 @@
       body {
           padding-bottom: 10px;
           padding-top: 10px;
+          background-image:url("http://o6gcipdzi.bkt.clouddn.com/background2.jpg");
+          background-attachment:fixed;
       }
       .navbar {
           margin-bottom: 10px;
@@ -37,9 +39,8 @@
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-5">
             <span class="sr-only">Toggle navigation</span>
           </button>
-          <a class="navbar-brand" href="{{ url_for('main.index') }}">Project Manage</a>
         </div>
-
+          <img src="{{ url_for('static', filename='img/pm3.png') }}" style="width: 160px;margin:10px; float: left;"/>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="navbar-collapse-5">
           <ul class="nav navbar-nav">

@@ -6,6 +6,7 @@ from ..models import Step, Project, User, Commit, Record
 from . import main
 import json
 from datetime import datetime
+from .. import cache
 
 
 @main.route('/', methods=['GET'])
@@ -45,6 +46,7 @@ def index():
 
 @main.route('/project/<project_id>', methods=['GET'])
 @login_required
+@cache.cached(timeout=60)
 def project(project_id):
     '''
     项目显示细节
