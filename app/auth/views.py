@@ -5,7 +5,6 @@ from . import auth
 from ..models import User
 from .forms import RegisterForm, EditForm, ChangePasswdForm
 from .. import db
-from .. import cache
 
 
 @auth.route('/login', methods=['GET', 'POST'])

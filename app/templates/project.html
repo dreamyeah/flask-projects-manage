@@ -129,7 +129,9 @@ img {
             var sid = $(this).attr("id");
             $("#finish_step_remark").modal({backdrop: "static"});
             $("#step_finish_button").click(function (){
+                alert(sid);
                 var remark_text = $("#finish_remark").val();
+                if($('#'+sid).attr("class") !== "btn btn-success"){
                 $.post("/step/finish/"+sid,
                 {
                     remark:remark_text
@@ -155,7 +157,7 @@ img {
 
 
                          }
-                });
+                });}
             });
 
             })
