@@ -116,11 +116,26 @@ def indeed_delete_project(project_id):
     return 'ok', 200
 
 
-
 @manage.route("/manager_view", methods=['GET'])
 @login_required
 def manager_view():
     if not current_user.admin:
         return redirect(url_for('manage.index'))
     projects = Project.query.all()
-    return render_template('manage/manager.html', projects=projects)
+    users = User.query.filter(User.create_projects != None).all()
+    print users
+    return render_template('manage/manager.html', projects=projects, users=users)
+
+
+@manage.route("/manager_view/filter/<info>", methods=['GET'])
+@login_required
+def manager_view_filter(info):
+    if not current_user.admin:
+        return redirect(url_for('manage.index'))
+    user_ids = info.strip('&').split('&')
+    filter_users = User.query.filter(User.id.in_(user_ids)).all()
+    projects = []
+    for u in filter_users:
+        projects += u.create_projects.all()
+    users = User.query.all()
+    return render_template('manage/manager.html', projects=projects, users=users)
