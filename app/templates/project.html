@@ -83,7 +83,12 @@ img {
 }
 
 
+.have-error {
+    color: #e74c3c;
+    border-color: #e74c3c;
+    box-shadow: none;
 
+}
 </style>
 <script type="text/javascript">
     var xmlhttp;
@@ -335,22 +340,23 @@ img {
     <table class="table table-hover" id="commit_history_form" >
     <thead>
       <tr>
-      <th ></th>
-      <th></th>
-      <th></th>
-      <th></th>
+          <th width="15%"></th>
+          <th width="15%"></th>
+          <th width="20%"></th>
+          <th width="20%"></th>
+          <th width="30%"></th>
       </tr>
     </thead>
     <tbody>
     {% for c in commits[::-1] %}
           <tr>
             <td  style="font-size: 16px;">{{ moment(c.create_at).fromNow(refresh=True) }} </td>
-            <td width="15%" style="font-size: 16px;">
+            <td  style="font-size: 16px;">
                <span style="color: #007fff">[{{ c.branch }}] </span>
             </td>
-            <td width="20%" style="font-size: 16px;">  by {{ c.message }}> </td>
-            <td width="20%" style="font-size: 16px;">  <span style="color: #76231f">[{{ c.ref }}]</span> </td>
-            <td width="30%" style="font-size: 16px;">  by {{ c.cname }} < {{ c.cemail }} > </td>
+            <td style="font-size: 16px;"> {{ c.message }}</td>
+            <td style="font-size: 16px;">  <span style="color: #76231f">[{{ c.ref }}]</span> </td>
+            <td style="font-size: 16px;">  by {{ c.cname }} < {{ c.cemail }} > </td>
           </tr>
     {% endfor %}
         </tbody>
@@ -359,15 +365,15 @@ img {
     <table class="table table-hover" id="operation_history_form">
     <thead>
       <tr>
-      <th></th>
-      <th></th>
+      <th width="20%"></th>
+      <th width="50%"></th>
       </tr>
     </thead>
     <tbody>
     {% for r in project.records[::-1] %}
           <tr>
-            <td width="20%" style="font-size: 16px;">{{ moment(r.create_at).fromNow(refresh=True) }} </td>
-            <td width="50%" style="font-size: 16px;"> {{ r.content }}    </td>
+            <td  style="font-size: 16px;">{{ moment(r.create_at).fromNow(refresh=True) }} </td>
+            <td  style="font-size: 16px;"> {{ r.content }}    </td>
           </tr>
     {% endfor %}
         </tbody>
@@ -636,7 +642,15 @@ $(document).ready(function(){
 <script type="text/javascript">
     function check(form) {
           if(form.name.value=='') {
-                alert("请输入用户帐号!");
+                $("#name").attr('class', 'form-control have-error');
+                return false;
+           }
+        if(form.start_time.value=='') {
+                $("#datepicker1").attr('class', 'form-control have-error');
+                return false;
+           }
+        if(form.finish_time.value=='') {
+                $("#datepicker2").attr('class', 'form-control have-error');
                 return false;
            }
          }

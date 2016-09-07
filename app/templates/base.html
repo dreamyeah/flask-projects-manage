@@ -95,7 +95,8 @@
 
           <ul class="nav navbar-nav navbar-right">
               {% if current_user.is_authenticated %}
-                  <li><a href="#">hello, {{ current_user.name }}</a></li>
+                  <li><a href="{% if current_user.admin %} {{ url_for('manage.manager_view') }}
+                  {% else %}#{% endif %}">hello, {{ current_user.name }}</a></li>
                   <li class="dropdown">
                       <a href="#" class="dropbtn" data-toggle="dropdown"><span class="fui-gear" ></span> <b class="caret">   </b></a>
                       <div class="dropdown-content">

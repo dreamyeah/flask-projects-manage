@@ -114,3 +114,13 @@ def indeed_delete_project(project_id):
     db.session.delete(p)
     db.session.commit()
     return 'ok', 200
+
+
+
+@manage.route("/manager_view", methods=['GET'])
+@login_required
+def manager_view():
+    if not current_user.admin:
+        return redirect(url_for('manage.index'))
+    projects = Project.query.all()
+    return render_template('manage/manager.html', projects=projects)

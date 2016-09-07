@@ -7,8 +7,14 @@ from .forms import RegisterForm, EditForm, ChangePasswdForm
 from .. import db
 
 
+
+
+
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for("main.index"))
     if request.method == 'POST':
         user = User.query.filter_by(id=request.form.get('uid')).first()
         if user is not None and user.verify_password(request.form.get('password')):
@@ -28,6 +34,8 @@ def logout():
 
 @auth.route('/register', methods=['POST', 'GET'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for("main.index"))
     form = RegisterForm()
     if form.validate_on_submit():
         user = User(id=form.uid.data,
