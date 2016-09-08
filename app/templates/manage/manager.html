@@ -4,8 +4,9 @@
 {% block title %}项目管理{% endblock %}
 {% block head %}
 {{ super() }}
-    <link rel="stylesheet" href="{{ url_for('static', filename='themes/blue/style3.css') }}" type="text/css" id="" media="print, projection, screen" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='themes/blue/style_table.css') }}" type="text/css" id="" media="print, projection, screen" />
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.tablesorter.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/echarts.common.min.js') }}"></script>
     <script type="text/javascript">
         $.tablesorter.addParser({
         // set a unique id
@@ -149,10 +150,71 @@
 {% endblock %}
 {% block page_content %}
 
-<div class="container">
-
+<div class="container-fluid">
 <div class="row">
-     <table class="tablesorter table table-hover table-bordered " style="background-color: white">
+    <div id="main" class="col-md-3"  style="height:400px;margin-left: 50px;"></div>    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        // 指定图表的配置项和数据
+        var option = {
+            title : {
+                text: '项目统计数量',
+                subtext: '',
+                x:'center'
+            },
+            tooltip : {
+                trigger: 'item',
+                formatter: "{a} <br/>{b} : {c} ({d}%)"
+            },
+            legend: {
+                orient : 'vertical',
+                x : 'left',
+                data:[{% for u in chart_users %}'{{ u.name }}',{% endfor %}]
+            },
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {
+                        show: true,
+                        type: ['pie', 'funnel'],
+                        option: {
+                            funnel: {
+                                x: '25%',
+                                width: '50%',
+                                funnelAlign: 'left',
+                                max: 1548
+                            }
+                        }
+                    },
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            calculable : true,
+            series : [
+                {
+                    name:'项目数量',
+                    type:'pie',
+                    radius : '55%',
+                    center: ['50%', '60%'],
+                    data:[
+                        {% for u in chart_users %}
+                        {value:{{ chart[u] }}, name:'{{ u.name }}'},
+                        {% endfor %}
+                    ]
+                }
+            ]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+<div class="col-md-8">
+     <table class="tablesorter table table-hover table-bordered">
          <thead>
          <tr style="font-size: 30px">
              <th width="18%">项目名</th>
@@ -184,6 +246,7 @@
      </table>
 
     </div>
+</div>
 </div>
 
 
