@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import render_template, redirect, request, url_for, current_app, flash
 from flask.ext.login import login_required, current_user
-from ..models import Project, User
+from ..models import Project, User, Step
 from . import manage
 from .. import db
 
@@ -124,8 +124,12 @@ def manager_view():
         return redirect(url_for('manage.index'))
     projects = Project.query.all()
     users = User.query.filter(User.create_projects != None).all()
-    print users
-    return render_template('manage/manager.html', projects=projects, users=users)
+    process = {}
+    for p in projects:
+        sum_steps = len(p.steps.all())
+        finish_steps = Step.query.filter_by(project=p, status=True).count()
+        process[p] = int((finish_steps/float(sum_steps)) * 100)
+    return render_template('manage/manager.html', projects=projects, users=users, process=process)
 
 
 @manage.route("/manager_view/filter/<info>", methods=['GET'])
@@ -140,4 +144,9 @@ def manager_view_filter(info):
     for u in filter_users:
         projects += u.create_projects.all()
     users = User.query.all()
-    return render_template('manage/manager.html', projects=projects, users=users)
+    process = {}
+    for p in projects:
+        sum_steps = len(p.steps.all())
+        finish_steps = Step.query.filter_by(project=p, status=True).count()
+        process[p] = int((finish_steps/float(sum_steps)) * 100)
+    return render_template('manage/manager.html', projects=projects, users=users, process=process)

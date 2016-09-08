@@ -162,7 +162,7 @@
              <th width="12%">预计结束时间</th>
              <th width="10%">剩余天数</th>
              <th width="10%" id="choose_modal">项目所有 </th>
-             <th width="8%">状态</th>
+             <th width="8%">进度</th>
          </tr>
          </thead>
          <tbody style="font-size: 17px">
@@ -177,7 +177,7 @@
                  <td>
                      {{ p.creator.name }}
                  </td>
-                 <td>{% if p.status %} 已完成 {% else %} 未完成 {% endif %}</td>
+                 <td>{{ process[p] }}%</td>
              </tr>
          {% endfor %}
          </tbody>
