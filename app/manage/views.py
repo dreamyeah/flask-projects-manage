@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import render_template, redirect, request, url_for , current_app
+from flask import render_template, redirect, request, url_for, current_app, flash
 from flask.ext.login import login_required, current_user
 from ..models import Project, User
 from . import manage
@@ -120,6 +120,7 @@ def indeed_delete_project(project_id):
 @login_required
 def manager_view():
     if not current_user.admin:
+        flash(u'您没有这个权限')
         return redirect(url_for('manage.index'))
     projects = Project.query.all()
     users = User.query.filter(User.create_projects != None).all()
@@ -131,6 +132,7 @@ def manager_view():
 @login_required
 def manager_view_filter(info):
     if not current_user.admin:
+        flash(u'您没有这个权限')
         return redirect(url_for('manage.index'))
     user_ids = info.strip('&').split('&')
     filter_users = User.query.filter(User.id.in_(user_ids)).all()

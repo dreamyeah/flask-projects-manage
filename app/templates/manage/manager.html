@@ -7,8 +7,22 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='themes/blue/style3.css') }}" type="text/css" id="" media="print, projection, screen" />
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.tablesorter.js') }}"></script>
     <script type="text/javascript">
+        $.tablesorter.addParser({
+        // set a unique id
+        id: 'grades',
+        is: function(s) {
+            // return false so this parser is not auto detected
+            return false;
+        },
+        format: function(s) {
+            // format your data for normalization
+            return s.replace(/ days/,'');
+        },
+        // set type, either numeric or text
+        type: 'numeric'
+    });
 		$(function() {
-			$("table").tablesorter({debug: true});
+            $("table").tablesorter({headers: {6: {sorter: false}, 5:{sorter: 'grades'}}});
 		});
 
     </script>
@@ -33,7 +47,105 @@
 
   });
 
-</script>
+    </script>
+    <style>
+        th:hover {
+            cursor:pointer;
+        }
+    </style>
+{% endblock %}
+{% block navbar %}
+    <style>
+      body {
+          padding-bottom: 10px;
+          padding-top: 10px;
+          background-image:url("http://o6gcipdzi.bkt.clouddn.com/background2.jpg");
+          background-attachment:fixed;
+      }
+      .navbar {
+          margin-bottom: 10px;
+      }
+        .dropdown {
+    position: relative;
+    display: inline-block;
+}
+    .dropbtn {
+        background-color: inherit;
+        color: white;
+        font-size: 12px;
+        border: none;
+        cursor: pointer;
+    }
+    /* Dropdown Content (Hidden by Default) */
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color:#34495e;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    }
+
+    /* Links inside the dropdown */
+    .dropdown-content a {
+        color: #ffffff;
+        padding: 12px 20px;
+        text-decoration: none;
+        display: block;
+    }
+
+    /* Change color of dropdown links on hover */
+    .dropdown-content a:hover {background-color: #1abc9c;color: #ffffff}
+
+    /* Show the dropdown menu on hover */
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+    /* Change the background color of the dropdown button when the dropdown content is shown */
+    .dropdown:hover .dropbtn {
+        background-color: #34495e;
+    }
+    </style>
+    <!-- Static navbar -->
+      <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-5">
+            <span class="sr-only">Toggle navigation</span>
+          </button>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+          <a href="{{ url_for('main.index') }}"><img src="{{ url_for('static', filename='img/pm3.png') }}" style="width:160px;margin:10px; float: left;"/></a>
+
+        <div class="collapse navbar-collapse" id="navbar-collapse-5">
+          <ul class="nav navbar-nav">
+              <li ><a href="{{ url_for('main.index') }}"> 主页 </a></li>
+              <li><a href="{{ url_for('manage.index') }}"> 管理 </a></li>
+              <li><a href="{{ url_for('tree.index') }}"> 项目树 </a></li>
+              <li class="active"><a href="{{ url_for('manage.manager_view') }}"> 统计 </a></li>
+
+           </ul>
+
+          <ul class="nav navbar-nav navbar-right">
+              {% if current_user.is_authenticated %}
+                  <li><a href="{% if current_user.admin %} {{ url_for('manage.manager_view') }}
+                  {% else %}#{% endif %}">hello, {{ current_user.name }}</a></li>
+                  <li class="dropdown">
+                      <a href="#" class="dropbtn" data-toggle="dropdown"><span class="fui-gear" ></span> <b class="caret">   </b></a>
+                      <div class="dropdown-content">
+                          <a href="{{ url_for('auth.edit_profile') }}">修改资料</a>
+                          <a href="{{ url_for('auth.change_passwd') }}">修改密码</a>
+                      </div>
+                  </li>
+                  <li style="margin-right: 40px"><a href="{{ url_for('auth.logout') }}">登出</a></li>
+              {% else %}
+                  <li><a href="{{ url_for('auth.login') }}">登陆</a></li>
+                  <li><a href="{{ url_for('auth.register') }}">注册</a></li>
+              {% endif %}
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </nav>
+
 {% endblock %}
 {% block page_content %}
 
@@ -49,7 +161,7 @@
              <th width="12%">开始时间</th>
              <th width="12%">预计结束时间</th>
              <th width="10%">剩余天数</th>
-             <th width="10%" id="choose_modal">项目所有</th>
+             <th width="10%" id="choose_modal">项目所有 </th>
              <th width="8%">状态</th>
          </tr>
          </thead>
@@ -61,7 +173,7 @@
                  <td>{{ p.start_time.strftime('%Y-%m-%d') }}</td>
                  <td>{{ p.start_time.strftime('%Y-%m-%d') }}</td>
                  <td>{{ p.expected_finish_at.strftime('%Y-%m-%d') }}</td>
-                 <td> {{ (p.expected_finish_at - p.start_time).days }} 个工作日</td>
+                 <td> {{ (p.expected_finish_at - p.start_time).days }} days</td>
                  <td>
                      {{ p.creator.name }}
                  </td>
@@ -109,4 +221,5 @@
     </div><!-- /.modal -->
 </div>
    <!-- /.添加成员项目框结束 -->
+
 {% endblock %}
