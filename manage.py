@@ -37,6 +37,21 @@ def negate_filter(d):
     '''
     return -d
 
+@app.template_filter('formatSize')
+def formatSize(d):
+    '''
+    :param d: int
+    :return: str
+    '''
+    if d < 1024:
+        return str(d) +' B'
+    elif d < 1024*1024:
+        return str(d/1024) + ' KB'
+    elif d < 1024*1024*1024:
+        return str(d/(1024*1024)) + ' MB'
+    else:
+        return str(d/(1024*1024*1024)) + ' GB'
+
 
 def make_shell_context():
     return dict(app=app, db=db, Step=Step, User=User, Project=Project, Commit=Commit, Record=Record, registrations=registrations)

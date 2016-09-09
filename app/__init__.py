@@ -36,5 +36,8 @@ def create_app(config_name):
 
     from .tree import tree as tree_blueprint
     app.register_blueprint(tree_blueprint, url_prefix='/tree')
+
+    from .doc import doc as doc_blueprint
+    app.register_blueprint(doc_blueprint, url_prefix='/doc')
     return app
 
