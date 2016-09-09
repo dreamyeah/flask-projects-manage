@@ -1,0 +1,114 @@
+{% extends "doc/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}文件中转{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style>
+    .demo-download {
+    background-color: #ebedef;
+    height: 300px;
+    margin: 0 auto 32px;
+    padding: 40px 28px 30px 32px;
+    text-align: center;
+    width: 300px;
+    border-radius: 50%;
+}
+    .demo-download-text {
+    font-size: 15px;
+    padding: 20px 0;
+    text-align: center;
+    }
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#create_button").click(function(){
+                $("#createFolder").modal({backdrop: true});
+            });})
+    </script>
+{% endblock %}
+{% block page_content %}
+    <div class="container-fluid" style="margin-top: 50px">
+        <div class="row">
+            <div class="col-md-3 col-md-offset-1" style="padding-right: 80px;padding-left: 70px">
+                <div class="demo-download">
+                     <img src="{{ url_for('static', filename='img/html-icon.png') }}" />
+                </div>
+                <form action="" method=post enctype=multipart/form-data>
+                    <div class="form-group">
+                        <input type=file  name=file >
+                    </div>
+                      <div class="form-group">
+                <input type=submit value=Upload class="btn btn-primary btn-lg btn-block"></div>
+                </form>
+                <a role="button" class="btn btn-inverse btn-lg btn-block" id="create_button"> 创建新文件夹 </a>
+{#                <a href="#" >Upload</a>#}
+            <p class="demo-download-text">Notice:Only supports "txt | pdf | png | jpg | jpeg | gif | docx | doc" format</p>
+            </div>
+            <div class="col-md-8">
+            <h4> 共享文档 </h4>
+                <table class="table table-hover table-responsive">
+                    <thead>
+                    <tr>
+                        <th width="40%"> 文件名 </th>
+                        <th width="25%"> 大小 </th>
+                        <th width="35%"> 操作 </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for d in dirs %}
+                    <tr>
+                        <td>{{ d }}</td>
+                        <td> {{ sizes[d]|formatSize }}</td>
+                        <td>
+                            <a role="button" class="btn btn-inverse" href="{{ url_for('doc.show_dir', basepath=base_path, dirpath=d) }}"> 查看 </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% for f in files %}
+                    <tr>
+                        <td>{{ f.decode('utf-8') }}</td>
+                        <td> {{ sizes[f]|formatSize }}</td>
+                        <td>
+                            <a role="button" class="btn btn-primary" href="{{ url_for('doc.show_doc', basepath=base_path,filename=f) }}"> 查看 </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框（Modal）创建新文件夹用 -->
+<div class="modal fade" id="createFolder" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header" style="background-color: rgba(19, 19, 19, 0.77)">
+            <button type="button" class="close"
+               data-dismiss="modal" aria-hidden="true" style="color: #ffffff">
+                  &times;
+            </button>
+            <h6 class="modal-title" id="myModalLabel"style="color: #ffffff">
+                 <span class="login-field-icon fui-user"> </span>
+               创建新文件夹
+            </h6>
+         </div>
+         <div class="modal-body">
+             <form id="createFolder" name="createFolder"  method="POST" role="form" action="{{ url_for('doc.create_folder', basepath=base_path) }}">
+                 <div class="form-group">
+                        <label for="name">文件夹名称</label>
+                        <input type="text" class="form-control" id="name" name="name">
+                 </div>
+                 <div class="modal-footer">
+                     <button id="create" class="btn btn-primary" >确认创建</button>
+                 </div>
+             </form>
+
+         </div>
+      </div><!-- /.modal-content -->
+</div><!-- /.modal -->
+</div>
+   <!-- /.添加成员项目框结束 -->
+{% endblock %}
