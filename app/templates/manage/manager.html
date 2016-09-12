@@ -59,7 +59,6 @@
     <style>
       body {
           padding-bottom: 10px;
-          padding-top: 10px;
           background-image:url("http://o6gcipdzi.bkt.clouddn.com/background2.jpg");
           background-attachment:fixed;
       }
@@ -106,9 +105,13 @@
     .dropdown:hover .dropbtn {
         background-color: #34495e;
     }
+    .navbar-lg .navbar-nav  li  a {
+        font-size: 17px;
+        color: #86939E;
+    }
     </style>
     <!-- Static navbar -->
-      <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <nav class="navbar navbar-default navbar-lg" role="navigation">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-5">
@@ -116,7 +119,7 @@
           </button>
         </div>
         <!-- Collect the nav links, forms, and other content for toggling -->
-          <a href="{{ url_for('main.index') }}"><img src="{{ url_for('static', filename='img/pm3.png') }}" style="width:160px;margin:10px; float: left;"/></a>
+          <a href="{{ url_for('main.index') }}"><img src="{{ url_for('static', filename='img/pm5.png') }}" style="margin: 15px 0px 0px 30px;height:50px; float: left;"/></a>
 
         <div class="collapse navbar-collapse" id="navbar-collapse-5">
           <ul class="nav navbar-nav">
@@ -150,7 +153,6 @@
 
 {% endblock %}
 {% block page_content %}
-
 <div class="container-fluid">
 <div class="row">
     <div id="main" class="col-md-3"  style="height:400px;margin-left: 50px;"></div>    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
