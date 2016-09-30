@@ -71,6 +71,7 @@
                         <td> {{ sizes[f]|formatSize }}</td>
                         <td>
                             <a role="button" class="btn btn-info" href="{{ url_for('doc.show_doc', basepath=base_path,filename=f) }}"> 查看 </a>
+                            <a role="button" class="btn btn-primary" href="{{ url_for('doc.download_file', basepath=base_path,filename=f) }}"> 下载 </a>
                         </td>
                     </tr>
                     {% endfor %}

@@ -3,6 +3,7 @@ from flask import render_template, Markup, redirect, send_from_directory, abort,
 from flask.ext.login import login_required
 from . import doc
 import os
+from manager import app
 from werkzeug.utils import secure_filename
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'docx', 'doc'])
 
@@ -37,8 +38,8 @@ def index():
     for f in files:
         sizes[f] = os.path.getsize(os.path.join(current_app.config['UPLOAD_FOLDER'], f))
     for d in dirs:
-        sizes[d] = getdirsize(os.path.join(current_app.config['UPLOAD_FOLDER'], d))
-    return render_template('doc/show_path.html', dirs=dirs, files=files, base_path=current_app.config['UPLOAD_FOLDER'],
+        sizes[d] = getdirsize(os.path.join(app.config['UPLOAD_FOLDER'], d))
+    return render_template('doc/show_path.html', dirs=dirs, files=files, base_path=app.config['UPLOAD_FOLDER'],
                            sizes=sizes)
 
 
@@ -52,7 +53,7 @@ def show_dir(basepath, dirpath):
             print os.path.join(unicode(basepath), unicode(dirpath), file.filename)
             file.save(os.path.join(basepath, dirpath, file.filename))
         return redirect(url_for('doc.show_dir', basepath=basepath, dirpath=dirpath))
-    if not basepath.startswith(current_app.config['UPLOAD_FOLDER']):
+    if not basepath.startswith(app.config['UPLOAD_FOLDER']):
         abort(404)
     path = os.path.join(basepath, dirpath)
     all_things = os.listdir(path)
@@ -83,4 +84,6 @@ def create_folder(basepath):
     os.mkdir(os.path.join(basepath, filename))
     return redirect(url_for('doc.show_dir', basepath=basepath, dirpath=filename))
 
-
+@doc.route('/downloads/<basepath>/<filename>')
+def download_file(basepath, filename):
+    return send_from_directory(basepath, filename, as_attachment=True)
