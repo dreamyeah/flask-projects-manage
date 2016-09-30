@@ -1,6 +1,5 @@
 #基于Flask的项目管理网站 
-
-##基于Flask的项目管理网站
+![Logo](http://o6gcipdzi.bkt.clouddn.com/pm5.png)
 开发：Flask + MySql
 部署：gunicorn + nginx + supervisor + 阿里云 ubuntu 14.04 
 ###基本功能：
